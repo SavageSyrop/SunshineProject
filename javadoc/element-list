@@ -1,0 +1,14 @@
+com.shevtsov.sunshine
+com.shevtsov.sunshine.common
+com.shevtsov.sunshine.controller
+com.shevtsov.sunshine.dao
+com.shevtsov.sunshine.dao.entities
+com.shevtsov.sunshine.dao.impl
+com.shevtsov.sunshine.dto
+com.shevtsov.sunshine.dto.mappers
+com.shevtsov.sunshine.exceptions
+com.shevtsov.sunshine.exceptions.exceptionHandlers
+com.shevtsov.sunshine.main.configuration
+com.shevtsov.sunshine.main.filters
+com.shevtsov.sunshine.service
+com.shevtsov.sunshine.service.impl

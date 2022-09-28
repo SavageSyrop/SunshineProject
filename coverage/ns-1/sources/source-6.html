@@ -1,0 +1,512 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > UserServiceImpl</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+    @import "../../.css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../.js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.shevtsov.sunshine.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: UserServiceImpl (com.shevtsov.sunshine.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78,3%
+  </span>
+  <span class="absValue">
+    (18/23)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    86,3%
+  </span>
+  <span class="absValue">
+    (132/153)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.shevtsov.sunshine.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;
+<i class="no-highlight">4</i>&nbsp;import com.shevtsov.sunshine.dao.FriendRequestDao;
+<i class="no-highlight">5</i>&nbsp;import com.shevtsov.sunshine.dao.RoleDao;
+<i class="no-highlight">6</i>&nbsp;import com.shevtsov.sunshine.dao.UserDao;
+<i class="no-highlight">7</i>&nbsp;import com.shevtsov.sunshine.dao.UserInfoDao;
+<i class="no-highlight">8</i>&nbsp;import com.shevtsov.sunshine.dao.WallDao;
+<i class="no-highlight">9</i>&nbsp;import com.shevtsov.sunshine.dao.entities.FriendRequest;
+<i class="no-highlight">10</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Role;
+<i class="no-highlight">11</i>&nbsp;import com.shevtsov.sunshine.dao.entities.User;
+<i class="no-highlight">12</i>&nbsp;import com.shevtsov.sunshine.dao.entities.UserInfo;
+<i class="no-highlight">13</i>&nbsp;import com.shevtsov.sunshine.dao.entities.UserSearchInfo;
+<i class="no-highlight">14</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Wall;
+<i class="no-highlight">15</i>&nbsp;import com.shevtsov.sunshine.common.RoleType;
+<i class="no-highlight">16</i>&nbsp;import com.shevtsov.sunshine.common.UserWallPermissionType;
+<i class="no-highlight">17</i>&nbsp;import com.shevtsov.sunshine.exceptions.AlreadyExistsException;
+<i class="no-highlight">18</i>&nbsp;import com.shevtsov.sunshine.exceptions.AuthorizationErrorException;
+<i class="no-highlight">19</i>&nbsp;import com.shevtsov.sunshine.exceptions.BannedException;
+<i class="no-highlight">20</i>&nbsp;import com.shevtsov.sunshine.exceptions.InvalidActionException;
+<i class="no-highlight">21</i>&nbsp;import com.shevtsov.sunshine.exceptions.SelfInteractionException;
+<i class="no-highlight">22</i>&nbsp;import com.shevtsov.sunshine.exceptions.WeakDataException;
+<i class="no-highlight">23</i>&nbsp;import com.shevtsov.sunshine.service.UserService;
+<i class="no-highlight">24</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">25</i>&nbsp;import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+<i class="no-highlight">26</i>&nbsp;import org.springframework.stereotype.Component;
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;import javax.persistence.EntityNotFoundException;
+<i class="no-highlight">29</i>&nbsp;import java.util.List;
+<i class="no-highlight">30</i>&nbsp;import java.util.UUID;
+<i class="no-highlight">31</i>&nbsp;import java.util.regex.Matcher;
+<i class="no-highlight">32</i>&nbsp;import java.util.regex.Pattern;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;@Component
+<i class="no-highlight">35</i>&nbsp;public class UserServiceImpl extends AbstractServiceImpl&lt;User, UserDao&gt; implements UserService {
+<i class="no-highlight">36</i>&nbsp;    @Autowired
+<i class="no-highlight">37</i>&nbsp;    private UserInfoDao userInfoDao;
+<i class="no-highlight">38</i>&nbsp;
+<i class="no-highlight">39</i>&nbsp;    @Autowired
+<i class="no-highlight">40</i>&nbsp;    private RoleDao roleDao;
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    @Autowired
+<i class="no-highlight">43</i>&nbsp;    private FriendRequestDao friendRequestDao;
+<i class="no-highlight">44</i>&nbsp;
+<i class="no-highlight">45</i>&nbsp;    @Autowired
+<i class="no-highlight">46</i>&nbsp;    private WallDao wallDao;
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;    @Autowired
+<i class="no-highlight">49</i>&nbsp;    private BCryptPasswordEncoder encoder;
+<i class="no-highlight">50</i>&nbsp;
+<i class="no-highlight">51</i>&nbsp;    @Autowired
+<i class="no-highlight">52</i>&nbsp;    private MailService mailService;
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;    public UserServiceImpl(UserDao defaultDao) {
+<b class="fc"><i class="no-highlight">55</i>&nbsp;        super(defaultDao);</b>
+<b class="fc"><i class="no-highlight">56</i>&nbsp;    }</b>
+<i class="no-highlight">57</i>&nbsp;
+<i class="no-highlight">58</i>&nbsp;    public User addUser(UserInfo userInfo, Long roleId) {
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        isValidEmail(userInfo.getEmail());</b>
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        isValidPassword(userInfo.getPassword());</b>
+<b class="fc"><i class="no-highlight">61</i>&nbsp;        userInfo.setPassword(encoder.encode(userInfo.getPassword()));</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        userInfoDao.create(userInfo);</b>
+<b class="fc"><i class="no-highlight">63</i>&nbsp;        Role role = roleDao.getById(roleId);</b>
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        Wall wall = new Wall(UserWallPermissionType.ALL, UserWallPermissionType.ALL);</b>
+<b class="fc"><i class="no-highlight">65</i>&nbsp;        wallDao.create(wall);</b>
+<b class="fc"><i class="no-highlight">66</i>&nbsp;        User user = new User(userInfo, wall, role);</b>
+<b class="fc"><i class="no-highlight">67</i>&nbsp;        user.setActivationCode(UUID.randomUUID().toString());</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        defaultDao.create(user);</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        mailService.sendActivationEmail(user);</b>
+<b class="fc"><i class="no-highlight">70</i>&nbsp;        return user;</b>
+<i class="no-highlight">71</i>&nbsp;    }
+<i class="no-highlight">72</i>&nbsp;
+<i class="no-highlight">73</i>&nbsp;    /**
+<i class="no-highlight">74</i>&nbsp;     * @param currentUser     текущий пользователь
+<i class="no-highlight">75</i>&nbsp;     * @param newData         новый данные пользователя
+<i class="no-highlight">76</i>&nbsp;     * @param currentPassword текущий пароль
+<i class="no-highlight">77</i>&nbsp;     * @return обновленная информация пользователя
+<i class="no-highlight">78</i>&nbsp;     * @throws WeakDataException если текущий пароль неверный
+<i class="no-highlight">79</i>&nbsp;     */
+<i class="no-highlight">80</i>&nbsp;
+<i class="no-highlight">81</i>&nbsp;    @Override
+<i class="no-highlight">82</i>&nbsp;    public UserInfo editCurrentUser(User currentUser, UserInfo newData, String currentPassword) {
+<i class="no-highlight">83</i>&nbsp;
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        UserInfo oldData = currentUser.getUserInfo();</b>
+<i class="no-highlight">85</i>&nbsp;
+<b class="fc"><i class="no-highlight">86</i>&nbsp;        if (loadUserByUsername(newData.getUsername()) != null &amp;&amp; !oldData.getUsername().equals(newData.getUsername())) {</b>
+<b class="fc"><i class="no-highlight">87</i>&nbsp;            throw new AlreadyExistsException(&quot;User &quot; + newData.getUsername() + &quot; already exists!&quot;);</b>
+<i class="no-highlight">88</i>&nbsp;        }
+<i class="no-highlight">89</i>&nbsp;
+<b class="fc"><i class="no-highlight">90</i>&nbsp;        if (encoder.matches(currentPassword, currentUser.getPassword())) {</b>
+<b class="fc"><i class="no-highlight">91</i>&nbsp;            isValidPassword(newData.getPassword());</b>
+<b class="fc"><i class="no-highlight">92</i>&nbsp;            if (newData.getPassword() != null) {</b>
+<b class="fc"><i class="no-highlight">93</i>&nbsp;                oldData.setPassword(encoder.encode(newData.getPassword()));</b>
+<i class="no-highlight">94</i>&nbsp;            }
+<i class="no-highlight">95</i>&nbsp;
+<b class="fc"><i class="no-highlight">96</i>&nbsp;            if (newData.getUsername() != null) {</b>
+<b class="fc"><i class="no-highlight">97</i>&nbsp;                oldData.setUsername(newData.getUsername());</b>
+<i class="no-highlight">98</i>&nbsp;            }
+<i class="no-highlight">99</i>&nbsp;
+<b class="fc"><i class="no-highlight">100</i>&nbsp;            if (newData.getEmail() != null &amp;&amp; !(currentUser.getUserInfo().getEmail().equals(newData.getEmail()))) {</b>
+<b class="fc"><i class="no-highlight">101</i>&nbsp;                isValidEmail(newData.getEmail());</b>
+<b class="fc"><i class="no-highlight">102</i>&nbsp;                currentUser.setActivationCode(UUID.randomUUID().toString());</b>
+<b class="fc"><i class="no-highlight">103</i>&nbsp;                oldData.setEmail(newData.getEmail());</b>
+<b class="fc"><i class="no-highlight">104</i>&nbsp;                mailService.sendActivationEmail(currentUser);</b>
+<i class="no-highlight">105</i>&nbsp;            }
+<i class="no-highlight">106</i>&nbsp;
+<i class="no-highlight">107</i>&nbsp;
+<b class="fc"><i class="no-highlight">108</i>&nbsp;            if (newData.getFirstName() != null) {</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;                oldData.setFirstName(newData.getFirstName());</b>
+<i class="no-highlight">110</i>&nbsp;            }
+<i class="no-highlight">111</i>&nbsp;
+<b class="fc"><i class="no-highlight">112</i>&nbsp;            if (newData.getLastName() != null) {</b>
+<b class="nc"><i class="no-highlight">113</i>&nbsp;                oldData.setLastName(newData.getLastName());</b>
+<i class="no-highlight">114</i>&nbsp;            }
+<i class="no-highlight">115</i>&nbsp;
+<b class="fc"><i class="no-highlight">116</i>&nbsp;            if (newData.getGenderType() != null) {</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;                oldData.setGenderType(newData.getGenderType());</b>
+<i class="no-highlight">118</i>&nbsp;            }
+<i class="no-highlight">119</i>&nbsp;
+<b class="fc"><i class="no-highlight">120</i>&nbsp;            if (newData.getDateOfBirth() != null) {</b>
+<b class="nc"><i class="no-highlight">121</i>&nbsp;                oldData.setDateOfBirth(newData.getDateOfBirth());</b>
+<i class="no-highlight">122</i>&nbsp;            }
+<i class="no-highlight">123</i>&nbsp;
+<b class="fc"><i class="no-highlight">124</i>&nbsp;            if (newData.getCity() != null) {</b>
+<b class="nc"><i class="no-highlight">125</i>&nbsp;                oldData.setCity(newData.getCity());</b>
+<i class="no-highlight">126</i>&nbsp;            }
+<i class="no-highlight">127</i>&nbsp;
+<b class="fc"><i class="no-highlight">128</i>&nbsp;            if (newData.getOpenProfile() != null) {</b>
+<b class="nc"><i class="no-highlight">129</i>&nbsp;                oldData.setOpenProfile(newData.getOpenProfile());</b>
+<i class="no-highlight">130</i>&nbsp;            }
+<i class="no-highlight">131</i>&nbsp;
+<b class="fc"><i class="no-highlight">132</i>&nbsp;            userInfoDao.update(oldData);</b>
+<b class="fc"><i class="no-highlight">133</i>&nbsp;            currentUser.setUserInfo(oldData);</b>
+<b class="fc"><i class="no-highlight">134</i>&nbsp;            defaultDao.update(currentUser);</b>
+<i class="no-highlight">135</i>&nbsp;
+<b class="fc"><i class="no-highlight">136</i>&nbsp;            return oldData;</b>
+<i class="no-highlight">137</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">138</i>&nbsp;            throw new WeakDataException(&quot;Wrong current password was entered!&quot;);</b>
+<i class="no-highlight">139</i>&nbsp;        }
+<i class="no-highlight">140</i>&nbsp;    }
+<i class="no-highlight">141</i>&nbsp;
+<i class="no-highlight">142</i>&nbsp;    /**
+<i class="no-highlight">143</i>&nbsp;     * @param restoreCode уникальный код для восстановления пароля
+<i class="no-highlight">144</i>&nbsp;     * @param newPassword новый пароль
+<i class="no-highlight">145</i>&nbsp;     * @throws EntityNotFoundException неверный код восстановления
+<i class="no-highlight">146</i>&nbsp;     */
+<i class="no-highlight">147</i>&nbsp;
+<i class="no-highlight">148</i>&nbsp;    @Override
+<i class="no-highlight">149</i>&nbsp;    public void restorePassword(String restoreCode, String newPassword) {
+<b class="fc"><i class="no-highlight">150</i>&nbsp;        User user = defaultDao.getUserByRestorePasswordCode(restoreCode);</b>
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        if (user != null) {</b>
+<b class="fc"><i class="no-highlight">152</i>&nbsp;            isValidPassword(newPassword);</b>
+<b class="fc"><i class="no-highlight">153</i>&nbsp;            user.setRestorePasswordCode(null);</b>
+<b class="fc"><i class="no-highlight">154</i>&nbsp;            UserInfo userInfo = user.getUserInfo();</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;            userInfo.setPassword(encoder.encode(newPassword));</b>
+<b class="fc"><i class="no-highlight">156</i>&nbsp;            userInfoDao.update(userInfo);</b>
+<b class="fc"><i class="no-highlight">157</i>&nbsp;            defaultDao.update(user);</b>
+<b class="fc"><i class="no-highlight">158</i>&nbsp;            return;</b>
+<i class="no-highlight">159</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        throw new EntityNotFoundException(&quot;Invalid restore code!&quot;);</b>
+<i class="no-highlight">161</i>&nbsp;    }
+<i class="no-highlight">162</i>&nbsp;
+<i class="no-highlight">163</i>&nbsp;    /**
+<i class="no-highlight">164</i>&nbsp;     * @param activationCode уникальный код для активации аккаунта
+<i class="no-highlight">165</i>&nbsp;     * @return активированный пользователь
+<i class="no-highlight">166</i>&nbsp;     * @throws EntityNotFoundException если неверный код активации
+<i class="no-highlight">167</i>&nbsp;     */
+<i class="no-highlight">168</i>&nbsp;
+<i class="no-highlight">169</i>&nbsp;    @Override
+<i class="no-highlight">170</i>&nbsp;    public User activateAccount(String activationCode) {
+<b class="fc"><i class="no-highlight">171</i>&nbsp;        User user = defaultDao.getUserByActivationCode(activationCode);</b>
+<b class="fc"><i class="no-highlight">172</i>&nbsp;        if (user != null) {</b>
+<b class="fc"><i class="no-highlight">173</i>&nbsp;            user.setActivationCode(null);</b>
+<b class="fc"><i class="no-highlight">174</i>&nbsp;            defaultDao.update(user);</b>
+<b class="fc"><i class="no-highlight">175</i>&nbsp;            return user;</b>
+<i class="no-highlight">176</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">177</i>&nbsp;        throw new EntityNotFoundException(&quot;Invalid activation code!&quot;);</b>
+<i class="no-highlight">178</i>&nbsp;    }
+<i class="no-highlight">179</i>&nbsp;
+<i class="no-highlight">180</i>&nbsp;    @Override
+<i class="no-highlight">181</i>&nbsp;    public List&lt;FriendRequest&gt; getUserReceivedFriendRequests(Long id) {
+<b class="nc"><i class="no-highlight">182</i>&nbsp;        return friendRequestDao.getUserReceivedFriendRequests(id);</b>
+<i class="no-highlight">183</i>&nbsp;    }
+<i class="no-highlight">184</i>&nbsp;
+<i class="no-highlight">185</i>&nbsp;    /**
+<i class="no-highlight">186</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">187</i>&nbsp;     * @param otherUser   добавляемый в друзья пользователь
+<i class="no-highlight">188</i>&nbsp;     * @return созданный запрос дружбы
+<i class="no-highlight">189</i>&nbsp;     * @throws AlreadyExistsException   если запрос дружбы уже существует
+<i class="no-highlight">190</i>&nbsp;     * @throws SelfInteractionException если попытка добавить себя в друзья
+<i class="no-highlight">191</i>&nbsp;     */
+<i class="no-highlight">192</i>&nbsp;
+<i class="no-highlight">193</i>&nbsp;    @Override
+<i class="no-highlight">194</i>&nbsp;    public FriendRequest addFriend(User currentUser, User otherUser) {
+<b class="fc"><i class="no-highlight">195</i>&nbsp;        if (currentUser.getId().equals(otherUser.getId())) {</b>
+<b class="fc"><i class="no-highlight">196</i>&nbsp;            throw new SelfInteractionException(&quot;You can&#39;t add yourself to friends!&quot;);</b>
+<i class="no-highlight">197</i>&nbsp;        }
+<i class="no-highlight">198</i>&nbsp;
+<b class="fc"><i class="no-highlight">199</i>&nbsp;        FriendRequest currentUserRequest = getFriendRequestByUserIds(currentUser.getId(), otherUser.getId());</b>
+<i class="no-highlight">200</i>&nbsp;
+<b class="fc"><i class="no-highlight">201</i>&nbsp;        if (currentUserRequest != null) {</b>
+<b class="fc"><i class="no-highlight">202</i>&nbsp;            if (currentUserRequest.getIsAccepted()) {</b>
+<b class="nc"><i class="no-highlight">203</i>&nbsp;                throw new AlreadyExistsException(&quot;You have already a friend of that user!&quot;);</b>
+<i class="no-highlight">204</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">205</i>&nbsp;            throw new AlreadyExistsException(&quot;You have already sent friend request to that user!&quot;);</b>
+<i class="no-highlight">206</i>&nbsp;        }
+<i class="no-highlight">207</i>&nbsp;
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        FriendRequest recipientRequest = getFriendRequestByUserIds(otherUser.getId(), currentUser.getId());</b>
+<i class="no-highlight">209</i>&nbsp;
+<b class="fc"><i class="no-highlight">210</i>&nbsp;        if (recipientRequest == null) {</b>
+<b class="fc"><i class="no-highlight">211</i>&nbsp;            currentUserRequest = new FriendRequest(currentUser, otherUser, false);</b>
+<b class="fc"><i class="no-highlight">212</i>&nbsp;            currentUserRequest = friendRequestDao.create(currentUserRequest);</b>
+<i class="no-highlight">213</i>&nbsp;        } else {
+<b class="nc"><i class="no-highlight">214</i>&nbsp;            currentUserRequest = new FriendRequest(currentUser, otherUser, true);</b>
+<b class="nc"><i class="no-highlight">215</i>&nbsp;            recipientRequest.setIsAccepted(true);</b>
+<b class="nc"><i class="no-highlight">216</i>&nbsp;            currentUserRequest = friendRequestDao.create(currentUserRequest);</b>
+<b class="nc"><i class="no-highlight">217</i>&nbsp;            friendRequestDao.update(recipientRequest);</b>
+<i class="no-highlight">218</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">219</i>&nbsp;        return currentUserRequest;</b>
+<i class="no-highlight">220</i>&nbsp;    }
+<i class="no-highlight">221</i>&nbsp;
+<i class="no-highlight">222</i>&nbsp;    @Override
+<i class="no-highlight">223</i>&nbsp;    public FriendRequest acceptFriendRequest(User currentUser, Long requestId) {
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        FriendRequest receivedRequest = friendRequestDao.getById(requestId);</b>
+<b class="fc"><i class="no-highlight">225</i>&nbsp;        if (!receivedRequest.getRecipientUser().getId().equals(currentUser.getId())) {</b>
+<b class="nc"><i class="no-highlight">226</i>&nbsp;            throw new AuthorizationErrorException(&quot;This friend request wasn&#39;t sent to you!&quot;);</b>
+<i class="no-highlight">227</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">228</i>&nbsp;        FriendRequest currentUserRequest = new FriendRequest(currentUser, receivedRequest.getSenderUser(), true);</b>
+<b class="fc"><i class="no-highlight">229</i>&nbsp;        receivedRequest.setIsAccepted(true);</b>
+<b class="fc"><i class="no-highlight">230</i>&nbsp;        friendRequestDao.create(currentUserRequest);</b>
+<b class="fc"><i class="no-highlight">231</i>&nbsp;        friendRequestDao.update(receivedRequest);</b>
+<b class="fc"><i class="no-highlight">232</i>&nbsp;        return receivedRequest;</b>
+<i class="no-highlight">233</i>&nbsp;    }
+<i class="no-highlight">234</i>&nbsp;
+<i class="no-highlight">235</i>&nbsp;    /**
+<i class="no-highlight">236</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">237</i>&nbsp;     * @param requestId   id отменяемого запроса в друзья
+<i class="no-highlight">238</i>&nbsp;     * @return статус действия
+<i class="no-highlight">239</i>&nbsp;     * @throws InvalidActionException если попытка отменить существующую дружбу
+<i class="no-highlight">240</i>&nbsp;     */
+<i class="no-highlight">241</i>&nbsp;
+<i class="no-highlight">242</i>&nbsp;    @Override
+<i class="no-highlight">243</i>&nbsp;    public String declineFriendRequest(User currentUser, Long requestId) {  // TODO ПРОВЕРИТЬ
+<b class="fc"><i class="no-highlight">244</i>&nbsp;        FriendRequest receivedRequest = friendRequestDao.getById(requestId);</b>
+<i class="no-highlight">245</i>&nbsp;
+<b class="fc"><i class="no-highlight">246</i>&nbsp;        if (receivedRequest.getSenderUser().getId().equals(currentUser.getId()) &amp;&amp; !receivedRequest.getIsAccepted()) {</b>
+<b class="nc"><i class="no-highlight">247</i>&nbsp;            friendRequestDao.deleteById(requestId);</b>
+<b class="nc"><i class="no-highlight">248</i>&nbsp;            return &quot;You have successfully declined your friend request to &quot; + receivedRequest.getRecipientUser().getUsername();</b>
+<i class="no-highlight">249</i>&nbsp;        }
+<i class="no-highlight">250</i>&nbsp;
+<b class="fc"><i class="no-highlight">251</i>&nbsp;        if (!receivedRequest.getRecipientUser().getId().equals(currentUser.getId())) {</b>
+<b class="fc"><i class="no-highlight">252</i>&nbsp;            throw new AuthorizationErrorException(&quot;This friend request wasn&#39;t sent to you!&quot;);</b>
+<i class="no-highlight">253</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">254</i>&nbsp;        User otherUser = defaultDao.getById(receivedRequest.getSenderUser().getId());</b>
+<i class="no-highlight">255</i>&nbsp;
+<b class="fc"><i class="no-highlight">256</i>&nbsp;        if (receivedRequest.getIsAccepted()) {</b>
+<b class="fc"><i class="no-highlight">257</i>&nbsp;            throw new InvalidActionException(&quot;To unfriend user follow: /unfriend{userId}&quot;);</b>
+<i class="no-highlight">258</i>&nbsp;        }
+<i class="no-highlight">259</i>&nbsp;
+<i class="no-highlight">260</i>&nbsp;
+<b class="fc"><i class="no-highlight">261</i>&nbsp;        friendRequestDao.deleteById(requestId);</b>
+<i class="no-highlight">262</i>&nbsp;
+<b class="fc"><i class="no-highlight">263</i>&nbsp;        return &quot;You have successfully declined friend request from &quot; + otherUser.getUsername();</b>
+<i class="no-highlight">264</i>&nbsp;    }
+<i class="no-highlight">265</i>&nbsp;
+<i class="no-highlight">266</i>&nbsp;    /**
+<i class="no-highlight">267</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">268</i>&nbsp;     * @param otherUser   пользователь, удаляемый из друзей
+<i class="no-highlight">269</i>&nbsp;     * @return статус действия
+<i class="no-highlight">270</i>&nbsp;     * @throws EntityNotFoundException если дружба между текущим и выбранным пользователями не найдена
+<i class="no-highlight">271</i>&nbsp;     */
+<i class="no-highlight">272</i>&nbsp;
+<i class="no-highlight">273</i>&nbsp;    @Override
+<i class="no-highlight">274</i>&nbsp;    public String unfriendUser(User currentUser, User otherUser) {
+<b class="fc"><i class="no-highlight">275</i>&nbsp;        FriendRequest currentUserRequest = getFriendRequestByUserIds(currentUser.getId(), otherUser.getId());</b>
+<b class="fc"><i class="no-highlight">276</i>&nbsp;        FriendRequest otherUserRequest = getFriendRequestByUserIds(otherUser.getId(), currentUser.getId());</b>
+<i class="no-highlight">277</i>&nbsp;
+<b class="fc"><i class="no-highlight">278</i>&nbsp;        if (currentUserRequest == null) {</b>
+<b class="fc"><i class="no-highlight">279</i>&nbsp;            throw new EntityNotFoundException(&quot;Friendship between &quot; + currentUser.getUsername() + &quot; and &quot; + otherUser.getUsername() + &quot; doesn&#39;t exist&quot;);</b>
+<i class="no-highlight">280</i>&nbsp;        }
+<i class="no-highlight">281</i>&nbsp;
+<b class="fc"><i class="no-highlight">282</i>&nbsp;        if (currentUserRequest.getIsAccepted()) {</b>
+<b class="fc"><i class="no-highlight">283</i>&nbsp;            friendRequestDao.deleteById(currentUserRequest.getId());</b>
+<b class="fc"><i class="no-highlight">284</i>&nbsp;            otherUserRequest.setIsAccepted(false);</b>
+<b class="fc"><i class="no-highlight">285</i>&nbsp;            return &quot;You are not friends with &quot; + otherUser.getUsername() + &quot; anymore&quot;;</b>
+<i class="no-highlight">286</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">287</i>&nbsp;            friendRequestDao.deleteById(currentUserRequest.getId());</b>
+<b class="fc"><i class="no-highlight">288</i>&nbsp;            return &quot;You are now unsubscribed from &quot; + otherUser.getUsername();</b>
+<i class="no-highlight">289</i>&nbsp;        }
+<i class="no-highlight">290</i>&nbsp;    }
+<i class="no-highlight">291</i>&nbsp;
+<i class="no-highlight">292</i>&nbsp;    @Override
+<i class="no-highlight">293</i>&nbsp;    public void banUser(User userToBan) {
+<b class="fc"><i class="no-highlight">294</i>&nbsp;        if (userToBan.getIsBanned()) {</b>
+<b class="fc"><i class="no-highlight">295</i>&nbsp;            throw new BannedException(&quot;This user is already banned&quot;);</b>
+<i class="no-highlight">296</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">297</i>&nbsp;        if (userToBan.getRole().getName() != RoleType.ADMIN) {</b>
+<b class="fc"><i class="no-highlight">298</i>&nbsp;            userToBan.setIsBanned(true);</b>
+<i class="no-highlight">299</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">300</i>&nbsp;            throw new InvalidActionException(&quot;ADMIN CAN&#39;T BE BANNED&quot;);</b>
+<i class="no-highlight">301</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">302</i>&nbsp;    }</b>
+<i class="no-highlight">303</i>&nbsp;
+<i class="no-highlight">304</i>&nbsp;    @Override
+<i class="no-highlight">305</i>&nbsp;    public void unbanUser(User userToUnban) {
+<b class="fc"><i class="no-highlight">306</i>&nbsp;        if (userToUnban.getIsBanned()) {</b>
+<b class="fc"><i class="no-highlight">307</i>&nbsp;            userToUnban.setIsBanned(false);</b>
+<i class="no-highlight">308</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">309</i>&nbsp;            throw new InvalidActionException(&quot;This user is not banned&quot;);</b>
+<i class="no-highlight">310</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">311</i>&nbsp;    }</b>
+<i class="no-highlight">312</i>&nbsp;
+<i class="no-highlight">313</i>&nbsp;    @Override
+<i class="no-highlight">314</i>&nbsp;    public void forgotPassword(String username) {
+<b class="fc"><i class="no-highlight">315</i>&nbsp;        User user = getUserByUsername(username);</b>
+<b class="fc"><i class="no-highlight">316</i>&nbsp;        String passwordCode = UUID.randomUUID().toString();</b>
+<b class="fc"><i class="no-highlight">317</i>&nbsp;        user.setRestorePasswordCode(passwordCode);</b>
+<b class="fc"><i class="no-highlight">318</i>&nbsp;        mailService.sendForgotPasswordEmail(user);</b>
+<b class="fc"><i class="no-highlight">319</i>&nbsp;        defaultDao.update(user);</b>
+<b class="fc"><i class="no-highlight">320</i>&nbsp;    }</b>
+<i class="no-highlight">321</i>&nbsp;
+<i class="no-highlight">322</i>&nbsp;    /**
+<i class="no-highlight">323</i>&nbsp;     * @param currentUser       текущий пользователь
+<i class="no-highlight">324</i>&nbsp;     * @param postPermission    новый уровень доступа к написанию постов
+<i class="no-highlight">325</i>&nbsp;     * @param commentPermission новый уровень доступа к написанию комментариев
+<i class="no-highlight">326</i>&nbsp;     */
+<i class="no-highlight">327</i>&nbsp;    @Override
+<i class="no-highlight">328</i>&nbsp;    public void changeWallSettings(User currentUser, UserWallPermissionType postPermission, UserWallPermissionType commentPermission) {
+<b class="fc"><i class="no-highlight">329</i>&nbsp;        if (postPermission == null) {</b>
+<b class="fc"><i class="no-highlight">330</i>&nbsp;            postPermission = currentUser.getWall().getPostPermission();</b>
+<i class="no-highlight">331</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">332</i>&nbsp;        if (commentPermission == null) {</b>
+<b class="fc"><i class="no-highlight">333</i>&nbsp;            commentPermission = currentUser.getWall().getCommentPermission();</b>
+<i class="no-highlight">334</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">335</i>&nbsp;        currentUser.getWall().setCommentPermission(commentPermission);</b>
+<b class="fc"><i class="no-highlight">336</i>&nbsp;        currentUser.getWall().setPostPermission(postPermission);</b>
+<b class="fc"><i class="no-highlight">337</i>&nbsp;    }</b>
+<i class="no-highlight">338</i>&nbsp;
+<i class="no-highlight">339</i>&nbsp;    @Override
+<i class="no-highlight">340</i>&nbsp;    public List&lt;FriendRequest&gt; getUserFriends(Long userId) {
+<b class="nc"><i class="no-highlight">341</i>&nbsp;        return friendRequestDao.getUserFriends(userId);</b>
+<i class="no-highlight">342</i>&nbsp;    }
+<i class="no-highlight">343</i>&nbsp;
+<i class="no-highlight">344</i>&nbsp;    @Override
+<i class="no-highlight">345</i>&nbsp;    public List&lt;FriendRequest&gt; getUserSentFriendRequests(Long userId) {
+<b class="nc"><i class="no-highlight">346</i>&nbsp;        return friendRequestDao.getUserSentFriendRequests(userId);</b>
+<i class="no-highlight">347</i>&nbsp;    }
+<i class="no-highlight">348</i>&nbsp;
+<i class="no-highlight">349</i>&nbsp;    @Override
+<i class="no-highlight">350</i>&nbsp;    public Boolean isFriendOf(Long currentUserId, Long recipientUserId) {
+<b class="nc"><i class="no-highlight">351</i>&nbsp;        return friendRequestDao.isFriendOf(currentUserId, recipientUserId);</b>
+<i class="no-highlight">352</i>&nbsp;    }
+<i class="no-highlight">353</i>&nbsp;
+<i class="no-highlight">354</i>&nbsp;    @Override
+<i class="no-highlight">355</i>&nbsp;    public User getUserByUsername(String username) {
+<b class="fc"><i class="no-highlight">356</i>&nbsp;        return defaultDao.getByUsername(username);</b>
+<i class="no-highlight">357</i>&nbsp;    }
+<i class="no-highlight">358</i>&nbsp;
+<i class="no-highlight">359</i>&nbsp;
+<i class="no-highlight">360</i>&nbsp;    @Override
+<i class="no-highlight">361</i>&nbsp;    public List&lt;UserInfo&gt; getUsersByParams(UserSearchInfo userSearchInfo) {
+<b class="nc"><i class="no-highlight">362</i>&nbsp;        return userInfoDao.getUserInfosByParams(userSearchInfo);</b>
+<i class="no-highlight">363</i>&nbsp;    }
+<i class="no-highlight">364</i>&nbsp;
+<i class="no-highlight">365</i>&nbsp;    @Override
+<i class="no-highlight">366</i>&nbsp;    public User loadUserByUsername(String username) {
+<b class="fc"><i class="no-highlight">367</i>&nbsp;        return defaultDao.getByUsername(username);</b>
+<i class="no-highlight">368</i>&nbsp;    }
+<i class="no-highlight">369</i>&nbsp;
+<i class="no-highlight">370</i>&nbsp;    /**
+<i class="no-highlight">371</i>&nbsp;     * @param password пароль для проверки на требования
+<i class="no-highlight">372</i>&nbsp;     * @throws WeakDataException если пароль не соответствует требованиям
+<i class="no-highlight">373</i>&nbsp;     */
+<i class="no-highlight">374</i>&nbsp;
+<i class="no-highlight">375</i>&nbsp;    private void isValidPassword(String password) {
+<b class="fc"><i class="no-highlight">376</i>&nbsp;        if (password == null) {</b>
+<b class="nc"><i class="no-highlight">377</i>&nbsp;            return;</b>
+<i class="no-highlight">378</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">379</i>&nbsp;        String regex = &quot;^(?=.*\\d)(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).\\w{7,}$&quot;;</b>
+<b class="fc"><i class="no-highlight">380</i>&nbsp;        Pattern pattern = Pattern.compile(regex);</b>
+<b class="fc"><i class="no-highlight">381</i>&nbsp;        Matcher matcher = pattern.matcher(password);</b>
+<b class="fc"><i class="no-highlight">382</i>&nbsp;        if (!matcher.find()) {</b>
+<b class="fc"><i class="no-highlight">383</i>&nbsp;            throw new WeakDataException(&quot;Your password is weak! Please enter a password witch contains at least one uppercase, one lowercase letter and one number!&quot;);</b>
+<i class="no-highlight">384</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">385</i>&nbsp;    }</b>
+<i class="no-highlight">386</i>&nbsp;
+<i class="no-highlight">387</i>&nbsp;    /**
+<i class="no-highlight">388</i>&nbsp;     * @param email эмейл для проверки на требования
+<i class="no-highlight">389</i>&nbsp;     * @throws WeakDataException если эмейл не соответствует rfr2822 шаблону
+<i class="no-highlight">390</i>&nbsp;     */
+<i class="no-highlight">391</i>&nbsp;
+<i class="no-highlight">392</i>&nbsp;    private void isValidEmail(String email) {
+<b class="fc"><i class="no-highlight">393</i>&nbsp;        if (email == null) {</b>
+<b class="nc"><i class="no-highlight">394</i>&nbsp;            return;</b>
+<i class="no-highlight">395</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">396</i>&nbsp;        String regex = &quot;(?:(?:\\r\\n)?[ \\t])*(?:(?:(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)*\\&lt;(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\&gt;(?:(?:\\r\\n)?[ \\t])*)|(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)*:(?:(?:\\r\\n)?[ \\t])*(?:(?:(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)*\\&lt;(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\&gt;(?:(?:\\r\\n)?[ \\t])*)(?:,\\s*(?:(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)*\\&lt;(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\&quot;(?:[^\\\&quot;\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\&quot;(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()&lt;&gt;@,;:\\\\\&quot;.\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\&quot;()&lt;&gt;@,;:\\\\\&quot;.\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\&gt;(?:(?:\\r\\n)?[ \\t])*))*)?;\\s*)&quot;;</b>
+<b class="fc"><i class="no-highlight">397</i>&nbsp;        Pattern pattern = Pattern.compile(regex);</b>
+<b class="fc"><i class="no-highlight">398</i>&nbsp;        Matcher matcher = pattern.matcher(email);</b>
+<b class="fc"><i class="no-highlight">399</i>&nbsp;        if (!matcher.find()) {</b>
+<b class="fc"><i class="no-highlight">400</i>&nbsp;            throw new WeakDataException(&quot;You have entered email witch doesn&#39;t match rfc2822 pattern!&quot;);</b>
+<i class="no-highlight">401</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">402</i>&nbsp;    }</b>
+<i class="no-highlight">403</i>&nbsp;
+<i class="no-highlight">404</i>&nbsp;    private FriendRequest getFriendRequestByUserIds(Long currentUserId, Long recipientId) {
+<b class="fc"><i class="no-highlight">405</i>&nbsp;        return friendRequestDao.getFriendRequestByUserIds(currentUserId, recipientId);</b>
+<i class="no-highlight">406</i>&nbsp;    }
+<i class="no-highlight">407</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-09-15 20:28</div>
+</div>
+</body>
+</html>

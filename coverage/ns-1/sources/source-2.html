@@ -1,0 +1,430 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ChatServiceImpl</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+    @import "../../.css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../.js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.shevtsov.sunshine.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: ChatServiceImpl (com.shevtsov.sunshine.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ChatServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    87,5%
+  </span>
+  <span class="absValue">
+    (14/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96,2%
+  </span>
+  <span class="absValue">
+    (102/106)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.shevtsov.sunshine.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;
+<i class="no-highlight">4</i>&nbsp;import com.shevtsov.sunshine.dao.ChatDao;
+<i class="no-highlight">5</i>&nbsp;import com.shevtsov.sunshine.dao.ChatParticipationDao;
+<i class="no-highlight">6</i>&nbsp;import com.shevtsov.sunshine.dao.FriendRequestDao;
+<i class="no-highlight">7</i>&nbsp;import com.shevtsov.sunshine.dao.MessageDao;
+<i class="no-highlight">8</i>&nbsp;import com.shevtsov.sunshine.dao.UserDao;
+<i class="no-highlight">9</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Chat;
+<i class="no-highlight">10</i>&nbsp;import com.shevtsov.sunshine.dao.entities.ChatParticipation;
+<i class="no-highlight">11</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Message;
+<i class="no-highlight">12</i>&nbsp;import com.shevtsov.sunshine.dao.entities.User;
+<i class="no-highlight">13</i>&nbsp;import com.shevtsov.sunshine.common.ChatType;
+<i class="no-highlight">14</i>&nbsp;import com.shevtsov.sunshine.exceptions.AlreadyExistsException;
+<i class="no-highlight">15</i>&nbsp;import com.shevtsov.sunshine.exceptions.AuthorizationErrorException;
+<i class="no-highlight">16</i>&nbsp;import com.shevtsov.sunshine.exceptions.InvalidActionException;
+<i class="no-highlight">17</i>&nbsp;import com.shevtsov.sunshine.exceptions.SelfInteractionException;
+<i class="no-highlight">18</i>&nbsp;import com.shevtsov.sunshine.service.ChatService;
+<i class="no-highlight">19</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">20</i>&nbsp;import org.springframework.stereotype.Component;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;import javax.persistence.EntityNotFoundException;
+<i class="no-highlight">23</i>&nbsp;import java.util.List;
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;@Component
+<i class="no-highlight">26</i>&nbsp;public class ChatServiceImpl extends AbstractServiceImpl&lt;Chat, ChatDao&gt; implements ChatService {
+<i class="no-highlight">27</i>&nbsp;    public ChatServiceImpl(ChatDao defaultDao) {
+<b class="fc"><i class="no-highlight">28</i>&nbsp;        super(defaultDao);</b>
+<b class="fc"><i class="no-highlight">29</i>&nbsp;    }</b>
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;    @Autowired
+<i class="no-highlight">32</i>&nbsp;    private MailService mailService;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;    @Autowired
+<i class="no-highlight">35</i>&nbsp;    private ChatParticipationDao chatParticipationDao;
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;    @Autowired
+<i class="no-highlight">38</i>&nbsp;    private MessageDao messageDao;
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;    @Autowired
+<i class="no-highlight">41</i>&nbsp;    private UserDao userDao;
+<i class="no-highlight">42</i>&nbsp;
+<i class="no-highlight">43</i>&nbsp;    @Autowired
+<i class="no-highlight">44</i>&nbsp;    private FriendRequestDao friendRequestDao;
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;    /**
+<i class="no-highlight">47</i>&nbsp;     * поиск приватного чата между двумя пользователями
+<i class="no-highlight">48</i>&nbsp;     */
+<i class="no-highlight">49</i>&nbsp;    @Override
+<i class="no-highlight">50</i>&nbsp;    public Chat getPrivateChatBetweenCurrentAndRecipientUsers(Long id, Long recId) {
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        return chatParticipationDao.getPrivateChatBetweenCurrentAndRecipientUsers(id, recId);</b>
+<i class="no-highlight">52</i>&nbsp;
+<i class="no-highlight">53</i>&nbsp;    }
+<i class="no-highlight">54</i>&nbsp;
+<i class="no-highlight">55</i>&nbsp;    @Override
+<i class="no-highlight">56</i>&nbsp;    public ChatParticipation createChatParticipation(ChatParticipation chatParticipation) {
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        return chatParticipationDao.create(chatParticipation);</b>
+<i class="no-highlight">58</i>&nbsp;    }
+<i class="no-highlight">59</i>&nbsp;
+<i class="no-highlight">60</i>&nbsp;    @Override
+<i class="no-highlight">61</i>&nbsp;    public ChatParticipation getUserParticipationInChatByChatId(Long chatId, Long userId) {
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        return chatParticipationDao.getUserParticipationInChatByChatId(chatId, userId);</b>
+<i class="no-highlight">63</i>&nbsp;    }
+<i class="no-highlight">64</i>&nbsp;
+<i class="no-highlight">65</i>&nbsp;    @Override
+<i class="no-highlight">66</i>&nbsp;    public List&lt;ChatParticipation&gt; getChatParticipantsByChatId(Long chatId) {
+<b class="fc"><i class="no-highlight">67</i>&nbsp;        return chatParticipationDao.getChatParticipantsByChatId(chatId);</b>
+<i class="no-highlight">68</i>&nbsp;    }
+<i class="no-highlight">69</i>&nbsp;
+<i class="no-highlight">70</i>&nbsp;
+<i class="no-highlight">71</i>&nbsp;    /**
+<i class="no-highlight">72</i>&nbsp;     * @param chatId         id чата, из которого нужно найти пользователя
+<i class="no-highlight">73</i>&nbsp;     * @param currentUserId  id текущего пользователя
+<i class="no-highlight">74</i>&nbsp;     * @param toDeleteUserId id удаляемого пользователя
+<i class="no-highlight">75</i>&nbsp;     * @throws EntityNotFoundException когда удаляющий пользователь не состоит в чате
+<i class="no-highlight">76</i>&nbsp;     * @throws EntityNotFoundException когда удаляемый пользователь не состоит в чате
+<i class="no-highlight">77</i>&nbsp;     * @throws InvalidActionException  когда удаляющий пользователь не владелец чата
+<i class="no-highlight">78</i>&nbsp;     * @throws InvalidActionException  когда владелец удаляет себя из чата, при том что есть другие участники
+<i class="no-highlight">79</i>&nbsp;     */
+<i class="no-highlight">80</i>&nbsp;    @Override
+<i class="no-highlight">81</i>&nbsp;    public void removeUserFromChat(Long chatId, Long currentUserId, Long toDeleteUserId) {
+<b class="fc"><i class="no-highlight">82</i>&nbsp;        ChatParticipation currentUserChatParticipation = getUserParticipationInChatByChatId(chatId, currentUserId);</b>
+<i class="no-highlight">83</i>&nbsp;
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        if (currentUserChatParticipation == null) {</b>
+<b class="fc"><i class="no-highlight">85</i>&nbsp;            throw new EntityNotFoundException(&quot;User with id &quot; + currentUserId + &quot; is not in chat with id &quot; + chatId);</b>
+<i class="no-highlight">86</i>&nbsp;        }
+<i class="no-highlight">87</i>&nbsp;
+<b class="fc"><i class="no-highlight">88</i>&nbsp;        ChatParticipation removingUserChatParticipation = getUserParticipationInChatByChatId(chatId, toDeleteUserId);</b>
+<i class="no-highlight">89</i>&nbsp;
+<b class="fc"><i class="no-highlight">90</i>&nbsp;        if (removingUserChatParticipation == null) {</b>
+<b class="fc"><i class="no-highlight">91</i>&nbsp;            throw new EntityNotFoundException(&quot;User with id &quot; + toDeleteUserId + &quot; is not in chat with id &quot; + chatId);</b>
+<i class="no-highlight">92</i>&nbsp;        }
+<i class="no-highlight">93</i>&nbsp;
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        Chat chat = defaultDao.getById(chatId);</b>
+<i class="no-highlight">95</i>&nbsp;
+<b class="fc"><i class="no-highlight">96</i>&nbsp;        if (chat.getOwner() == null) {</b>
+<b class="fc"><i class="no-highlight">97</i>&nbsp;            throw new InvalidActionException(&quot;This chat is private, you can&#39;t remove user from it&quot;);</b>
+<i class="no-highlight">98</i>&nbsp;        }
+<i class="no-highlight">99</i>&nbsp;
+<b class="fc"><i class="no-highlight">100</i>&nbsp;        if (chat.getOwner().getId().equals(currentUserId) &amp;&amp; currentUserId.equals(toDeleteUserId)) {</b>
+<b class="fc"><i class="no-highlight">101</i>&nbsp;            if (getChatParticipantsByChatId(chatId).size() != 1) {</b>
+<b class="fc"><i class="no-highlight">102</i>&nbsp;                throw new InvalidActionException(&quot;You can&#39;t delete owner of chat while there are still other users!&quot;);</b>
+<i class="no-highlight">103</i>&nbsp;            } else {
+<b class="fc"><i class="no-highlight">104</i>&nbsp;                chatParticipationDao.deleteById(removingUserChatParticipation.getId());</b>
+<b class="fc"><i class="no-highlight">105</i>&nbsp;                defaultDao.deleteById(chatId);</b>
+<i class="no-highlight">106</i>&nbsp;            }
+<i class="no-highlight">107</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">108</i>&nbsp;            if (currentUserId.equals(toDeleteUserId)) {</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;                chatParticipationDao.deleteById(removingUserChatParticipation.getId());</b>
+<b class="nc"><i class="no-highlight">110</i>&nbsp;                return;</b>
+<i class="no-highlight">111</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">112</i>&nbsp;            if (!chat.getOwner().getId().equals(currentUserId)) {</b>
+<b class="fc"><i class="no-highlight">113</i>&nbsp;                throw new AuthorizationErrorException(&quot;Only owner of chat can delete users from it!&quot;);</b>
+<i class="no-highlight">114</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">115</i>&nbsp;            chatParticipationDao.deleteById(removingUserChatParticipation.getId());</b>
+<i class="no-highlight">116</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">117</i>&nbsp;    }</b>
+<i class="no-highlight">118</i>&nbsp;
+<i class="no-highlight">119</i>&nbsp;    /**
+<i class="no-highlight">120</i>&nbsp;     * @param currentUserId id текущего пользователя
+<i class="no-highlight">121</i>&nbsp;     * @param chatId        id чата, владельца которого нужно получить
+<i class="no-highlight">122</i>&nbsp;     * @return сущность членства владельца чата
+<i class="no-highlight">123</i>&nbsp;     * @throws AuthorizationErrorException если текущий пользователь не состоит в чате
+<i class="no-highlight">124</i>&nbsp;     * @throws InvalidActionException      если чат приватный
+<i class="no-highlight">125</i>&nbsp;     */
+<i class="no-highlight">126</i>&nbsp;    @Override
+<i class="no-highlight">127</i>&nbsp;    public ChatParticipation getChatOwnerParticipation(Long currentUserId, Long chatId) {
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        ChatParticipation currentUserParticipation = getUserParticipationInChatByChatId(chatId, currentUserId);</b>
+<b class="fc"><i class="no-highlight">129</i>&nbsp;        if (currentUserParticipation == null) {</b>
+<b class="fc"><i class="no-highlight">130</i>&nbsp;            throw new AuthorizationErrorException(&quot;You are not part of chat with id &quot; + chatId);</b>
+<i class="no-highlight">131</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">132</i>&nbsp;        if (currentUserParticipation.getChat().getChatType() == ChatType.PRIVATE) {</b>
+<b class="fc"><i class="no-highlight">133</i>&nbsp;            throw new InvalidActionException(&quot;Private chats don&#39;t have owner!&quot;);</b>
+<i class="no-highlight">134</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">135</i>&nbsp;        return getUserParticipationInChatByChatId(chatId, currentUserParticipation.getChat().getOwner().getId());</b>
+<i class="no-highlight">136</i>&nbsp;    }
+<i class="no-highlight">137</i>&nbsp;
+<i class="no-highlight">138</i>&nbsp;    /**
+<i class="no-highlight">139</i>&nbsp;     * добавляет сообщение в приватный чат (если задан параметр recipientUserId) или групповой (если задан chatId)
+<i class="no-highlight">140</i>&nbsp;     *
+<i class="no-highlight">141</i>&nbsp;     * @param currentUser     id текущего пользователя
+<i class="no-highlight">142</i>&nbsp;     * @param recipientUserId id получателя сообщения (опционально)
+<i class="no-highlight">143</i>&nbsp;     * @param chatId          id чата (опционально)
+<i class="no-highlight">144</i>&nbsp;     * @param mes             текст сообщения
+<i class="no-highlight">145</i>&nbsp;     * @return созданное сообщение группового или личного чата
+<i class="no-highlight">146</i>&nbsp;     * @throws AuthorizationErrorException если не друг пишет пользователю с закрытым профилем
+<i class="no-highlight">147</i>&nbsp;     * @throws AuthorizationErrorException если сообщение отправлено в чат, в котором не состоит текущий пользователь
+<i class="no-highlight">148</i>&nbsp;     */
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;    @Override
+<i class="no-highlight">151</i>&nbsp;    public Message addMessage(User currentUser, Long recipientUserId, Long chatId, String mes) {
+<i class="no-highlight">152</i>&nbsp;        Chat chat;
+<b class="fc"><i class="no-highlight">153</i>&nbsp;        if (recipientUserId != null) {          // пишем лично</b>
+<b class="fc"><i class="no-highlight">154</i>&nbsp;            User recipientUser = userDao.getById(recipientUserId);</b>
+<i class="no-highlight">155</i>&nbsp;
+<b class="fc"><i class="no-highlight">156</i>&nbsp;            if (recipientUser.getId().equals(currentUser.getId())) {</b>
+<b class="fc"><i class="no-highlight">157</i>&nbsp;                throw new SelfInteractionException(&quot;You can&#39;t create chat with yourself&quot;);</b>
+<i class="no-highlight">158</i>&nbsp;            }
+<i class="no-highlight">159</i>&nbsp;
+<b class="fc"><i class="no-highlight">160</i>&nbsp;            if (!recipientUser.isOpenUser() &amp;&amp; !friendRequestDao.isFriendOf(currentUser.getId(), recipientUser.getId())) {</b>
+<b class="fc"><i class="no-highlight">161</i>&nbsp;                throw new AuthorizationErrorException(&quot;Only friends can write users with closed profile!&quot;);</b>
+<i class="no-highlight">162</i>&nbsp;            }
+<i class="no-highlight">163</i>&nbsp;
+<b class="fc"><i class="no-highlight">164</i>&nbsp;            chat = getPrivateChatBetweenCurrentAndRecipientUsers(currentUser.getId(), recipientUser.getId());</b>
+<b class="fc"><i class="no-highlight">165</i>&nbsp;            if (chat == null) {</b>
+<b class="fc"><i class="no-highlight">166</i>&nbsp;                chat = new Chat(ChatType.PRIVATE, currentUser.getUsername() + &quot; / &quot; + recipientUser.getUsername(), null);</b>
+<b class="fc"><i class="no-highlight">167</i>&nbsp;                defaultDao.create(chat);</b>
+<b class="fc"><i class="no-highlight">168</i>&nbsp;                ChatParticipation chatParticipationCur = new ChatParticipation(chat, currentUser);</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;                ChatParticipation chatParticipationRec = new ChatParticipation(chat, recipientUser);</b>
+<b class="fc"><i class="no-highlight">170</i>&nbsp;                createChatParticipation(chatParticipationCur);</b>
+<b class="fc"><i class="no-highlight">171</i>&nbsp;                createChatParticipation(chatParticipationRec);</b>
+<i class="no-highlight">172</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">173</i>&nbsp;            Message message = new Message(currentUser, mes, chat);</b>
+<b class="fc"><i class="no-highlight">174</i>&nbsp;            message = messageDao.create(message);</b>
+<b class="fc"><i class="no-highlight">175</i>&nbsp;            return message;</b>
+<i class="no-highlight">176</i>&nbsp;        } else {        // пишем группе
+<b class="fc"><i class="no-highlight">177</i>&nbsp;            chat = defaultDao.getById(chatId);</b>
+<b class="fc"><i class="no-highlight">178</i>&nbsp;            if (getUserParticipationInChatByChatId(chatId, currentUser.getId()) == null) {</b>
+<b class="fc"><i class="no-highlight">179</i>&nbsp;                throw new AuthorizationErrorException(&quot;You have no chat participation in this chat. To write here you need to be added by other user&quot;);</b>
+<i class="no-highlight">180</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">181</i>&nbsp;            Message message = new Message(currentUser, mes, chat);</b>
+<b class="fc"><i class="no-highlight">182</i>&nbsp;            message = messageDao.create(message);</b>
+<b class="fc"><i class="no-highlight">183</i>&nbsp;            return message;</b>
+<i class="no-highlight">184</i>&nbsp;        }
+<i class="no-highlight">185</i>&nbsp;    }
+<i class="no-highlight">186</i>&nbsp;
+<i class="no-highlight">187</i>&nbsp;
+<i class="no-highlight">188</i>&nbsp;    /**
+<i class="no-highlight">189</i>&nbsp;     * @param chatName    имя чата
+<i class="no-highlight">190</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">191</i>&nbsp;     * @param userToAdd   пользователь, который добавляет в групповой чат при создании
+<i class="no-highlight">192</i>&nbsp;     * @return созданный груповой чат
+<i class="no-highlight">193</i>&nbsp;     * @throws SelfInteractionException когда создается чат с самим собой
+<i class="no-highlight">194</i>&nbsp;     * @throws InvalidActionException   когда чат создается с пользователем, не являющимся другом
+<i class="no-highlight">195</i>&nbsp;     */
+<i class="no-highlight">196</i>&nbsp;    @Override
+<i class="no-highlight">197</i>&nbsp;    public Chat createPublicChat(String chatName, User currentUser, User userToAdd) {
+<b class="fc"><i class="no-highlight">198</i>&nbsp;        if (currentUser.getId().equals(userToAdd.getId())) {</b>
+<b class="fc"><i class="no-highlight">199</i>&nbsp;            throw new SelfInteractionException(&quot;You can&#39;t create chat with yourself&quot;);</b>
+<i class="no-highlight">200</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">201</i>&nbsp;        if (!friendRequestDao.isFriendOf(currentUser.getId(), userToAdd.getId())) {</b>
+<b class="fc"><i class="no-highlight">202</i>&nbsp;            throw new InvalidActionException(&quot;You can&#39;t add this user because he is not your friend!&quot;);</b>
+<i class="no-highlight">203</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">204</i>&nbsp;        Chat chat = new Chat(ChatType.PUBLIC, chatName, currentUser);</b>
+<b class="fc"><i class="no-highlight">205</i>&nbsp;        defaultDao.create(chat);</b>
+<b class="fc"><i class="no-highlight">206</i>&nbsp;        ChatParticipation currentUserPart = new ChatParticipation(chat, currentUser);</b>
+<b class="fc"><i class="no-highlight">207</i>&nbsp;        ChatParticipation userToAddPart = new ChatParticipation(chat, userToAdd);</b>
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        createChatParticipation(currentUserPart);</b>
+<b class="fc"><i class="no-highlight">209</i>&nbsp;        createChatParticipation(userToAddPart);</b>
+<b class="fc"><i class="no-highlight">210</i>&nbsp;        return chat;</b>
+<i class="no-highlight">211</i>&nbsp;    }
+<i class="no-highlight">212</i>&nbsp;
+<i class="no-highlight">213</i>&nbsp;    /**
+<i class="no-highlight">214</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">215</i>&nbsp;     * @param chat        чат, который переименовывают
+<i class="no-highlight">216</i>&nbsp;     * @param chatName    новое имя чата
+<i class="no-highlight">217</i>&nbsp;     * @return переименованный чат
+<i class="no-highlight">218</i>&nbsp;     * @throws AuthorizationErrorException текущий пользователь не участник чата
+<i class="no-highlight">219</i>&nbsp;     */
+<i class="no-highlight">220</i>&nbsp;
+<i class="no-highlight">221</i>&nbsp;    @Override
+<i class="no-highlight">222</i>&nbsp;    public Chat renameChat(User currentUser, Chat chat, String chatName) {
+<b class="fc"><i class="no-highlight">223</i>&nbsp;        if (getUserParticipationInChatByChatId(chat.getId(), currentUser.getId()) != null) {</b>
+<b class="fc"><i class="no-highlight">224</i>&nbsp;            chat.setName(chatName);</b>
+<i class="no-highlight">225</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">226</i>&nbsp;            throw new AuthorizationErrorException(&quot;You have no chat participation in this chat. To write here you need to be added by other user&quot;);</b>
+<i class="no-highlight">227</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">228</i>&nbsp;        return chat;</b>
+<i class="no-highlight">229</i>&nbsp;    }
+<i class="no-highlight">230</i>&nbsp;
+<i class="no-highlight">231</i>&nbsp;    /**
+<i class="no-highlight">232</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">233</i>&nbsp;     * @param chatId      id чата, куда добавляется новый участник
+<i class="no-highlight">234</i>&nbsp;     * @param userToAddId id пользователя, которого нужно добавить в чат
+<i class="no-highlight">235</i>&nbsp;     * @return членство добавленного пользователя
+<i class="no-highlight">236</i>&nbsp;     * @throws InvalidActionException      если тип чата не групповой
+<i class="no-highlight">237</i>&nbsp;     * @throws AuthorizationErrorException если текущий пользователь не участник чата
+<i class="no-highlight">238</i>&nbsp;     * @throws AlreadyExistsException      если добавляемый пользователь уже участник чата
+<i class="no-highlight">239</i>&nbsp;     * @throws InvalidActionException      если добавляемый пользователь не друг текущего
+<i class="no-highlight">240</i>&nbsp;     */
+<i class="no-highlight">241</i>&nbsp;    @Override
+<i class="no-highlight">242</i>&nbsp;    public ChatParticipation addChatParticipantToChat(User currentUser, Long chatId, Long userToAddId) {
+<b class="fc"><i class="no-highlight">243</i>&nbsp;        User userToAdd = userDao.getById(userToAddId);</b>
+<i class="no-highlight">244</i>&nbsp;
+<b class="fc"><i class="no-highlight">245</i>&nbsp;        Chat chat = defaultDao.getById(chatId);</b>
+<i class="no-highlight">246</i>&nbsp;
+<b class="fc"><i class="no-highlight">247</i>&nbsp;        if (getUserParticipationInChatByChatId(chatId, currentUser.getId()) == null) {</b>
+<b class="fc"><i class="no-highlight">248</i>&nbsp;            throw new AuthorizationErrorException(&quot;Current user is not a participant of chat with id &quot; + chatId);</b>
+<i class="no-highlight">249</i>&nbsp;        }
+<i class="no-highlight">250</i>&nbsp;
+<b class="fc"><i class="no-highlight">251</i>&nbsp;        if (chat.getChatType() == ChatType.PRIVATE) {</b>
+<b class="fc"><i class="no-highlight">252</i>&nbsp;            throw new InvalidActionException(&quot;You can add users only to PUBLIC chats&quot;);</b>
+<i class="no-highlight">253</i>&nbsp;        }
+<i class="no-highlight">254</i>&nbsp;
+<b class="fc"><i class="no-highlight">255</i>&nbsp;        if (getUserParticipationInChatByChatId(chatId, userToAddId) != null) {</b>
+<b class="fc"><i class="no-highlight">256</i>&nbsp;            throw new AlreadyExistsException(&quot;User already is a member of this chat&quot;);</b>
+<i class="no-highlight">257</i>&nbsp;        }
+<i class="no-highlight">258</i>&nbsp;
+<b class="fc"><i class="no-highlight">259</i>&nbsp;        if (!friendRequestDao.isFriendOf(currentUser.getId(), userToAdd.getId())) {</b>
+<b class="fc"><i class="no-highlight">260</i>&nbsp;            throw new InvalidActionException(&quot;You can&#39;t add this user because he is not your friend!&quot;);</b>
+<i class="no-highlight">261</i>&nbsp;        }
+<i class="no-highlight">262</i>&nbsp;
+<b class="fc"><i class="no-highlight">263</i>&nbsp;        ChatParticipation chatParticipation = new ChatParticipation(chat, userToAdd);</b>
+<b class="fc"><i class="no-highlight">264</i>&nbsp;        chatParticipation = createChatParticipation(chatParticipation);</b>
+<b class="fc"><i class="no-highlight">265</i>&nbsp;        return chatParticipation;</b>
+<i class="no-highlight">266</i>&nbsp;    }
+<i class="no-highlight">267</i>&nbsp;
+<i class="no-highlight">268</i>&nbsp;
+<i class="no-highlight">269</i>&nbsp;    @Override
+<i class="no-highlight">270</i>&nbsp;    public void setChatOwner(User currentUser, User newOwner, Chat chat) {
+<i class="no-highlight">271</i>&nbsp;
+<b class="fc"><i class="no-highlight">272</i>&nbsp;        if (getUserParticipationInChatByChatId(chat.getId(), currentUser.getId()) == null) {</b>
+<b class="fc"><i class="no-highlight">273</i>&nbsp;            throw new EntityNotFoundException(&quot;Current user is not member of this chat!&quot;);</b>
+<i class="no-highlight">274</i>&nbsp;        }
+<i class="no-highlight">275</i>&nbsp;
+<b class="fc"><i class="no-highlight">276</i>&nbsp;        if (chat.getChatType() == ChatType.PRIVATE) {</b>
+<b class="fc"><i class="no-highlight">277</i>&nbsp;            throw new InvalidActionException(&quot;Private chats don&#39;t have owners!&quot;);</b>
+<i class="no-highlight">278</i>&nbsp;        }
+<i class="no-highlight">279</i>&nbsp;
+<b class="fc"><i class="no-highlight">280</i>&nbsp;        if ((getUserParticipationInChatByChatId(chat.getId(), newOwner.getId())) == null) {</b>
+<b class="fc"><i class="no-highlight">281</i>&nbsp;            throw new EntityNotFoundException(&quot;Chosen to be new owner user is not member of this chat!&quot;);</b>
+<i class="no-highlight">282</i>&nbsp;        }
+<i class="no-highlight">283</i>&nbsp;
+<b class="fc"><i class="no-highlight">284</i>&nbsp;        if (chat.getOwner().getId().equals(currentUser.getId())) {</b>
+<b class="fc"><i class="no-highlight">285</i>&nbsp;            chat.setOwner(newOwner);</b>
+<i class="no-highlight">286</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">287</i>&nbsp;            throw new AuthorizationErrorException(&quot;Current user is not owner of this chat!&quot;);</b>
+<i class="no-highlight">288</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">289</i>&nbsp;    }</b>
+<i class="no-highlight">290</i>&nbsp;
+<i class="no-highlight">291</i>&nbsp;    /**
+<i class="no-highlight">292</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">293</i>&nbsp;     * @param userRequest сообщение для поддержки
+<i class="no-highlight">294</i>&nbsp;     * @return созданное сообщение
+<i class="no-highlight">295</i>&nbsp;     * @throws InvalidActionException если запрос в поддержку уже существует
+<i class="no-highlight">296</i>&nbsp;     */
+<i class="no-highlight">297</i>&nbsp;    @Override
+<i class="no-highlight">298</i>&nbsp;    public Message writeToSupport(User currentUser, String userRequest) {
+<b class="fc"><i class="no-highlight">299</i>&nbsp;        if (messageDao.getUserSupportRequest(currentUser) != null) {</b>
+<b class="fc"><i class="no-highlight">300</i>&nbsp;            throw new InvalidActionException(&quot;You have already sent a support request, our admins will answer it shortly&quot;);</b>
+<i class="no-highlight">301</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">302</i>&nbsp;        Message message = new Message(currentUser, userRequest, null);</b>
+<b class="fc"><i class="no-highlight">303</i>&nbsp;        return messageDao.create(message);</b>
+<i class="no-highlight">304</i>&nbsp;    }
+<i class="no-highlight">305</i>&nbsp;
+<i class="no-highlight">306</i>&nbsp;    @Override
+<i class="no-highlight">307</i>&nbsp;    public List&lt;Message&gt; getSupportRequests() {
+<b class="nc"><i class="no-highlight">308</i>&nbsp;        return messageDao.getSupportRequests();</b>
+<i class="no-highlight">309</i>&nbsp;    }
+<i class="no-highlight">310</i>&nbsp;
+<i class="no-highlight">311</i>&nbsp;    @Override
+<i class="no-highlight">312</i>&nbsp;    public void answerSupportRequest(User user, String answer) {
+<b class="fc"><i class="no-highlight">313</i>&nbsp;        Message question = messageDao.getUserSupportRequest(user);</b>
+<b class="fc"><i class="no-highlight">314</i>&nbsp;        if (question == null) {</b>
+<b class="fc"><i class="no-highlight">315</i>&nbsp;            throw new EntityNotFoundException(&quot;This user haven&#39;t sent support request!&quot;);</b>
+<i class="no-highlight">316</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">317</i>&nbsp;        mailService.sendAnswerEmail(user, question.getText(), answer);</b>
+<b class="fc"><i class="no-highlight">318</i>&nbsp;        messageDao.deleteById(question.getId());</b>
+<b class="fc"><i class="no-highlight">319</i>&nbsp;    }</b>
+<i class="no-highlight">320</i>&nbsp;
+<i class="no-highlight">321</i>&nbsp;    @Override
+<i class="no-highlight">322</i>&nbsp;    public Message getMessageById(Long messageId) {
+<b class="nc"><i class="no-highlight">323</i>&nbsp;        return messageDao.getById(messageId);</b>
+<i class="no-highlight">324</i>&nbsp;    }
+<i class="no-highlight">325</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-09-15 20:28</div>
+</div>
+</body>
+</html>

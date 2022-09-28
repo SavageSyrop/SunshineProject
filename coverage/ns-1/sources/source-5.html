@@ -1,0 +1,523 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PostServiceImpl</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+    @import "../../.css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../.js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.shevtsov.sunshine.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: PostServiceImpl (com.shevtsov.sunshine.service.impl)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PostServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    84,6%
+  </span>
+  <span class="absValue">
+    (11/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66,2%
+  </span>
+  <span class="absValue">
+    (94/142)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">PostServiceImpl$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    85,7%
+  </span>
+  <span class="absValue">
+    (12/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66,7%
+  </span>
+  <span class="absValue">
+    (96/144)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.shevtsov.sunshine.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.shevtsov.sunshine.dao.CommentDao;
+<i class="no-highlight">4</i>&nbsp;import com.shevtsov.sunshine.dao.FriendRequestDao;
+<i class="no-highlight">5</i>&nbsp;import com.shevtsov.sunshine.dao.GroupMembershipDao;
+<i class="no-highlight">6</i>&nbsp;import com.shevtsov.sunshine.dao.LikeDao;
+<i class="no-highlight">7</i>&nbsp;import com.shevtsov.sunshine.dao.PostDao;
+<i class="no-highlight">8</i>&nbsp;import com.shevtsov.sunshine.dao.UserDao;
+<i class="no-highlight">9</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Comment;
+<i class="no-highlight">10</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Group;
+<i class="no-highlight">11</i>&nbsp;import com.shevtsov.sunshine.dao.entities.GroupMembership;
+<i class="no-highlight">12</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Like;
+<i class="no-highlight">13</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Post;
+<i class="no-highlight">14</i>&nbsp;import com.shevtsov.sunshine.dao.entities.User;
+<i class="no-highlight">15</i>&nbsp;import com.shevtsov.sunshine.dao.entities.Wall;
+<i class="no-highlight">16</i>&nbsp;import com.shevtsov.sunshine.common.GroupRole;
+<i class="no-highlight">17</i>&nbsp;import com.shevtsov.sunshine.common.GroupWallType;
+<i class="no-highlight">18</i>&nbsp;import com.shevtsov.sunshine.common.RoleType;
+<i class="no-highlight">19</i>&nbsp;import com.shevtsov.sunshine.exceptions.AuthorizationErrorException;
+<i class="no-highlight">20</i>&nbsp;import com.shevtsov.sunshine.exceptions.InvalidActionException;
+<i class="no-highlight">21</i>&nbsp;import com.shevtsov.sunshine.exceptions.LikeRevokedException;
+<i class="no-highlight">22</i>&nbsp;import com.shevtsov.sunshine.service.PostService;
+<i class="no-highlight">23</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">24</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">25</i>&nbsp;import org.springframework.stereotype.Component;
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;import javax.persistence.EntityNotFoundException;
+<i class="no-highlight">28</i>&nbsp;
+<i class="no-highlight">29</i>&nbsp;@Component
+<b class="fc"><i class="no-highlight">30</i>&nbsp;@Slf4j</b>
+<i class="no-highlight">31</i>&nbsp;public class PostServiceImpl extends AbstractServiceImpl&lt;Post, PostDao&gt; implements PostService {
+<i class="no-highlight">32</i>&nbsp;    @Autowired
+<i class="no-highlight">33</i>&nbsp;    private UserDao userDao;
+<i class="no-highlight">34</i>&nbsp;
+<i class="no-highlight">35</i>&nbsp;    @Autowired
+<i class="no-highlight">36</i>&nbsp;    private GroupMembershipDao groupMembershipDao;
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;    @Autowired
+<i class="no-highlight">39</i>&nbsp;    private CommentDao commentDao;
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;    @Autowired
+<i class="no-highlight">42</i>&nbsp;    private LikeDao likeDao;
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;    @Autowired
+<i class="no-highlight">45</i>&nbsp;    private FriendRequestDao friendRequestDao;
+<i class="no-highlight">46</i>&nbsp;
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;    public PostServiceImpl(PostDao defaultDao) {
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        super(defaultDao);</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;    }</b>
+<i class="no-highlight">51</i>&nbsp;
+<i class="no-highlight">52</i>&nbsp;    /**
+<i class="no-highlight">53</i>&nbsp;     * @param currentUser текущий полтзователь
+<i class="no-highlight">54</i>&nbsp;     * @param group       группа, в которую добавялется пост
+<i class="no-highlight">55</i>&nbsp;     * @param text        текст поста
+<i class="no-highlight">56</i>&nbsp;     * @return созданный пост группы
+<i class="no-highlight">57</i>&nbsp;     * @throws AuthorizationErrorException если текущий пользователь не соответстует уровню доступа
+<i class="no-highlight">58</i>&nbsp;     */
+<i class="no-highlight">59</i>&nbsp;    @Override
+<i class="no-highlight">60</i>&nbsp;    public Post addGroupPost(User currentUser, Group group, String text) {
+<i class="no-highlight">61</i>&nbsp;        Post groupPost;
+<i class="no-highlight">62</i>&nbsp;
+<b class="fc"><i class="no-highlight">63</i>&nbsp;        if (group.getWallType() == GroupWallType.ALL) {</b>
+<b class="fc"><i class="no-highlight">64</i>&nbsp;            groupPost = new Post(text, currentUser, group);</b>
+<b class="fc"><i class="no-highlight">65</i>&nbsp;            groupPost.setIsPublished(true);</b>
+<b class="fc"><i class="no-highlight">66</i>&nbsp;            defaultDao.create(groupPost);</b>
+<b class="fc"><i class="no-highlight">67</i>&nbsp;            return groupPost;</b>
+<i class="no-highlight">68</i>&nbsp;        }
+<i class="no-highlight">69</i>&nbsp;
+<b class="fc"><i class="no-highlight">70</i>&nbsp;        if (group.getWallType() == GroupWallType.OFFERED_POSTS) {</b>
+<b class="fc"><i class="no-highlight">71</i>&nbsp;            GroupMembership groupMembership = groupMembershipDao.getGroupMembershipByUserAndGroupIds(currentUser.getId(), group.getId());</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;            if (groupMembership == null &amp;&amp; !group.getOpenToJoin()) {</b>
+<b class="nc"><i class="no-highlight">73</i>&nbsp;                throw new AuthorizationErrorException(&quot;Join this group offer posts in this group!&quot;);</b>
+<i class="no-highlight">74</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">75</i>&nbsp;            groupPost = new Post(text, currentUser, group);</b>
+<b class="fc"><i class="no-highlight">76</i>&nbsp;            if (groupMembership != null &amp;&amp; (groupMembership.getGroupRole().equals(GroupRole.OWNER) || groupMembership.getGroupRole().equals(GroupRole.ADMIN))) {</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;                groupPost.setIsPublished(true);</b>
+<i class="no-highlight">78</i>&nbsp;            } else {
+<b class="fc"><i class="no-highlight">79</i>&nbsp;                groupPost.setIsPublished(false);</b>
+<i class="no-highlight">80</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">81</i>&nbsp;            defaultDao.create(groupPost);</b>
+<b class="fc"><i class="no-highlight">82</i>&nbsp;            return groupPost;</b>
+<i class="no-highlight">83</i>&nbsp;        }
+<i class="no-highlight">84</i>&nbsp;
+<b class="fc"><i class="no-highlight">85</i>&nbsp;        GroupMembership groupMembership = groupMembershipDao.getGroupMembershipByUserAndGroupIds(currentUser.getId(), group.getId());</b>
+<i class="no-highlight">86</i>&nbsp;
+<b class="fc"><i class="no-highlight">87</i>&nbsp;        if (groupMembership == null) {</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;            throw new AuthorizationErrorException(&quot;You are not subscribed. This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">89</i>&nbsp;        }
+<i class="no-highlight">90</i>&nbsp;
+<b class="fc"><i class="no-highlight">91</i>&nbsp;        if (groupMembership.getGroupRole() == GroupRole.AWAITING_CHECK) {</b>
+<b class="fc"><i class="no-highlight">92</i>&nbsp;            throw new AuthorizationErrorException(&quot;Wait until you are accepted as subscriber. This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">93</i>&nbsp;        }
+<i class="no-highlight">94</i>&nbsp;
+<i class="no-highlight">95</i>&nbsp;
+<b class="fc"><i class="no-highlight">96</i>&nbsp;        switch (group.getWallType()) {</b>
+<i class="no-highlight">97</i>&nbsp;            case OWNER: {
+<b class="fc"><i class="no-highlight">98</i>&nbsp;                if (groupMembership.getGroupRole() == GroupRole.OWNER) {</b>
+<b class="nc"><i class="no-highlight">99</i>&nbsp;                    groupPost = new Post(text, currentUser, group);</b>
+<b class="nc"><i class="no-highlight">100</i>&nbsp;                    defaultDao.create(groupPost);</b>
+<b class="nc"><i class="no-highlight">101</i>&nbsp;                    break;</b>
+<i class="no-highlight">102</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">103</i>&nbsp;                    throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">104</i>&nbsp;                }
+<i class="no-highlight">105</i>&nbsp;            }
+<i class="no-highlight">106</i>&nbsp;            case ADMINS: {
+<b class="nc"><i class="no-highlight">107</i>&nbsp;                if (groupMembership.getGroupRole() != GroupRole.SUBSCRIBER &amp;&amp; groupMembership.getGroupRole() != GroupRole.AWAITING_CHECK) {</b>
+<b class="nc"><i class="no-highlight">108</i>&nbsp;                    groupPost = new Post(text, currentUser, group);</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;                    defaultDao.create(groupPost);</b>
+<b class="nc"><i class="no-highlight">110</i>&nbsp;                    break;</b>
+<i class="no-highlight">111</i>&nbsp;                } else {
+<b class="nc"><i class="no-highlight">112</i>&nbsp;                    throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">113</i>&nbsp;                }
+<i class="no-highlight">114</i>&nbsp;            }
+<i class="no-highlight">115</i>&nbsp;            case SUBSCRIBERS: {
+<b class="nc"><i class="no-highlight">116</i>&nbsp;                if (groupMembership.getGroupRole() != GroupRole.AWAITING_CHECK) {</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;                    groupPost = new Post(text, currentUser, group);</b>
+<b class="nc"><i class="no-highlight">118</i>&nbsp;                    defaultDao.create(groupPost);</b>
+<b class="nc"><i class="no-highlight">119</i>&nbsp;                    break;</b>
+<i class="no-highlight">120</i>&nbsp;                }
+<i class="no-highlight">121</i>&nbsp;            }
+<i class="no-highlight">122</i>&nbsp;            default: {
+<b class="nc"><i class="no-highlight">123</i>&nbsp;                throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">124</i>&nbsp;            }
+<i class="no-highlight">125</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">126</i>&nbsp;        return groupPost;</b>
+<i class="no-highlight">127</i>&nbsp;    }
+<i class="no-highlight">128</i>&nbsp;
+<i class="no-highlight">129</i>&nbsp;    /**
+<i class="no-highlight">130</i>&nbsp;     * @param postId id поста, который нужно отклонить или добавить в группу
+<i class="no-highlight">131</i>&nbsp;     * @param toSave параметр действия , true - принять, false - отменит)
+<i class="no-highlight">132</i>&nbsp;     * @return созданный пост
+<i class="no-highlight">133</i>&nbsp;     * @throws EntityNotFoundException выбранный пост находится не в предложке
+<i class="no-highlight">134</i>&nbsp;     */
+<i class="no-highlight">135</i>&nbsp;
+<i class="no-highlight">136</i>&nbsp;    @Override
+<i class="no-highlight">137</i>&nbsp;    public Post dealWithOfferedPost(Long postId, boolean toSave) {
+<b class="fc"><i class="no-highlight">138</i>&nbsp;        Post post = defaultDao.getById(postId);</b>
+<i class="no-highlight">139</i>&nbsp;
+<b class="fc"><i class="no-highlight">140</i>&nbsp;        if (post == null || post.getIsPublished() == null || post.getIsPublished()) {</b>
+<b class="fc"><i class="no-highlight">141</i>&nbsp;            throw new EntityNotFoundException(&quot;Post with such id is not offered&quot;);</b>
+<i class="no-highlight">142</i>&nbsp;        }
+<i class="no-highlight">143</i>&nbsp;
+<b class="fc"><i class="no-highlight">144</i>&nbsp;        if (toSave) {</b>
+<b class="fc"><i class="no-highlight">145</i>&nbsp;            post.setIsPublished(true);</b>
+<b class="fc"><i class="no-highlight">146</i>&nbsp;            defaultDao.update(post);</b>
+<b class="fc"><i class="no-highlight">147</i>&nbsp;            return post;</b>
+<i class="no-highlight">148</i>&nbsp;        } else {
+<b class="nc"><i class="no-highlight">149</i>&nbsp;            defaultDao.deleteById(postId);</b>
+<b class="nc"><i class="no-highlight">150</i>&nbsp;            return null;</b>
+<i class="no-highlight">151</i>&nbsp;        }
+<i class="no-highlight">152</i>&nbsp;    }
+<i class="no-highlight">153</i>&nbsp;
+<i class="no-highlight">154</i>&nbsp;    /**
+<i class="no-highlight">155</i>&nbsp;     * @param currentUser     текущий пользователь
+<i class="no-highlight">156</i>&nbsp;     * @param message         сообщение
+<i class="no-highlight">157</i>&nbsp;     * @param post            выбранный пост
+<i class="no-highlight">158</i>&nbsp;     * @param group           группа, в которой находится выбранный пост
+<i class="no-highlight">159</i>&nbsp;     * @param groupMembership членство текущего пользователя
+<i class="no-highlight">160</i>&nbsp;     * @return созданный комментарий
+<i class="no-highlight">161</i>&nbsp;     * @throws AuthorizationErrorException если текущий пользователь не соответствует требованиям доступа
+<i class="no-highlight">162</i>&nbsp;     */
+<i class="no-highlight">163</i>&nbsp;    @Override
+<i class="no-highlight">164</i>&nbsp;    public Comment addGroupPostComment(User currentUser, String message, Post post, Group group, GroupMembership groupMembership) {
+<i class="no-highlight">165</i>&nbsp;        Comment newComment;
+<b class="fc"><i class="no-highlight">166</i>&nbsp;        switch (group.getWallType()) {</b>
+<i class="no-highlight">167</i>&nbsp;            case OFFERED_POSTS:
+<i class="no-highlight">168</i>&nbsp;            case ALL: {
+<b class="fc"><i class="no-highlight">169</i>&nbsp;                newComment = new Comment(currentUser, message, post);</b>
+<b class="fc"><i class="no-highlight">170</i>&nbsp;                commentDao.create(newComment);</b>
+<b class="fc"><i class="no-highlight">171</i>&nbsp;                break;</b>
+<i class="no-highlight">172</i>&nbsp;            }
+<i class="no-highlight">173</i>&nbsp;            case OWNER: {
+<b class="nc"><i class="no-highlight">174</i>&nbsp;                if (groupMembership != null &amp;&amp; groupMembership.getGroupRole() == GroupRole.OWNER) {</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;                    newComment = new Comment(currentUser, message, post);</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;                    commentDao.create(newComment);</b>
+<b class="nc"><i class="no-highlight">177</i>&nbsp;                    break;</b>
+<i class="no-highlight">178</i>&nbsp;                } else {
+<b class="nc"><i class="no-highlight">179</i>&nbsp;                    throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">180</i>&nbsp;                }
+<i class="no-highlight">181</i>&nbsp;            }
+<i class="no-highlight">182</i>&nbsp;            case ADMINS: {
+<b class="nc"><i class="no-highlight">183</i>&nbsp;                if (groupMembership != null &amp;&amp; groupMembership.getGroupRole() != GroupRole.SUBSCRIBER &amp;&amp; groupMembership.getGroupRole() != GroupRole.AWAITING_CHECK) {</b>
+<b class="nc"><i class="no-highlight">184</i>&nbsp;                    newComment = new Comment(currentUser, message, post);</b>
+<b class="nc"><i class="no-highlight">185</i>&nbsp;                    commentDao.create(newComment);</b>
+<b class="nc"><i class="no-highlight">186</i>&nbsp;                    break;</b>
+<i class="no-highlight">187</i>&nbsp;                } else {
+<b class="nc"><i class="no-highlight">188</i>&nbsp;                    throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">189</i>&nbsp;                }
+<i class="no-highlight">190</i>&nbsp;            }
+<i class="no-highlight">191</i>&nbsp;            case SUBSCRIBERS: {
+<b class="nc"><i class="no-highlight">192</i>&nbsp;                if (groupMembership != null &amp;&amp; groupMembership.getGroupRole() != GroupRole.AWAITING_CHECK) {</b>
+<b class="nc"><i class="no-highlight">193</i>&nbsp;                    newComment = new Comment(currentUser, message, post);</b>
+<b class="nc"><i class="no-highlight">194</i>&nbsp;                    commentDao.create(newComment);</b>
+<b class="nc"><i class="no-highlight">195</i>&nbsp;                    break;</b>
+<i class="no-highlight">196</i>&nbsp;                }
+<i class="no-highlight">197</i>&nbsp;            }
+<i class="no-highlight">198</i>&nbsp;            default: {
+<b class="nc"><i class="no-highlight">199</i>&nbsp;                throw new AuthorizationErrorException(&quot;You are not authorized to write posts in this group. &quot; + &quot;This wall is open for &quot; + group.getWallType().toString());</b>
+<i class="no-highlight">200</i>&nbsp;            }
+<i class="no-highlight">201</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">202</i>&nbsp;        return newComment;</b>
+<i class="no-highlight">203</i>&nbsp;    }
+<i class="no-highlight">204</i>&nbsp;
+<i class="no-highlight">205</i>&nbsp;    /**
+<i class="no-highlight">206</i>&nbsp;     * @param userId  id текущего пользователя
+<i class="no-highlight">207</i>&nbsp;     * @param comment выбранный комментарий
+<i class="no-highlight">208</i>&nbsp;     * @param group   группа, под постом в которой находится комментарий
+<i class="no-highlight">209</i>&nbsp;     * @return созданный лайк
+<i class="no-highlight">210</i>&nbsp;     * @throws AuthorizationErrorException если у текущего пользозателя нет доступа к стене
+<i class="no-highlight">211</i>&nbsp;     * @throws LikeRevokedException        если повторно поставлен лайк, тогда он отменяется
+<i class="no-highlight">212</i>&nbsp;     */
+<i class="no-highlight">213</i>&nbsp;    @Override
+<i class="no-highlight">214</i>&nbsp;    public Like addGroupCommentLike(Long userId, Comment comment, Group group) {
+<b class="fc"><i class="no-highlight">215</i>&nbsp;        if (!group.getOpenToJoin() &amp;&amp; groupMembershipDao.getGroupMembershipByUserAndGroupIds(userId, group.getId()) == null) {</b>
+<b class="fc"><i class="no-highlight">216</i>&nbsp;            throw new AuthorizationErrorException(&quot;Only subscribers have access to wall of this group!&quot;);</b>
+<i class="no-highlight">217</i>&nbsp;        }
+<i class="no-highlight">218</i>&nbsp;
+<b class="fc"><i class="no-highlight">219</i>&nbsp;        Like foundLikeId = likeDao.getCommentLikeByUserId(comment.getId(), userId);</b>
+<b class="fc"><i class="no-highlight">220</i>&nbsp;        if (foundLikeId != null) {</b>
+<b class="fc"><i class="no-highlight">221</i>&nbsp;            likeDao.deleteById(foundLikeId.getId());</b>
+<b class="fc"><i class="no-highlight">222</i>&nbsp;            return null;</b>
+<i class="no-highlight">223</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        Like commentLike = new Like(userDao.getById(userId), comment);</b>
+<b class="fc"><i class="no-highlight">225</i>&nbsp;        likeDao.create(commentLike);</b>
+<b class="fc"><i class="no-highlight">226</i>&nbsp;        return commentLike;</b>
+<i class="no-highlight">227</i>&nbsp;    }
+<i class="no-highlight">228</i>&nbsp;
+<i class="no-highlight">229</i>&nbsp;
+<i class="no-highlight">230</i>&nbsp;    /**
+<i class="no-highlight">231</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">232</i>&nbsp;     * @param post        выбранный пост
+<i class="no-highlight">233</i>&nbsp;     * @return созданный лайк поста
+<i class="no-highlight">234</i>&nbsp;     * @throws AuthorizationErrorException у текущего пользователя нет доступа к стене
+<i class="no-highlight">235</i>&nbsp;     * @throws LikeRevokedException        если повторно поставлен лайк, тогда он отменяется
+<i class="no-highlight">236</i>&nbsp;     */
+<i class="no-highlight">237</i>&nbsp;    @Override
+<i class="no-highlight">238</i>&nbsp;    public Like addPostLike(User currentUser, Post post) {
+<b class="fc"><i class="no-highlight">239</i>&nbsp;        if (!post.getIsPublished()) {</b>
+<b class="nc"><i class="no-highlight">240</i>&nbsp;            throw new InvalidActionException(&quot;It&#39;s post from offered posts, such posts aren&#39;t published and have no likes&quot;);</b>
+<i class="no-highlight">241</i>&nbsp;        }
+<i class="no-highlight">242</i>&nbsp;
+<b class="fc"><i class="no-highlight">243</i>&nbsp;        Group group = post.getGroup();</b>
+<b class="fc"><i class="no-highlight">244</i>&nbsp;        if (group != null) {</b>
+<b class="fc"><i class="no-highlight">245</i>&nbsp;            GroupMembership currentMembership = groupMembershipDao.getGroupMembershipByUserAndGroupIds(currentUser.getId(), group.getId());</b>
+<b class="fc"><i class="no-highlight">246</i>&nbsp;            if (!group.getOpenToJoin()) {</b>
+<b class="fc"><i class="no-highlight">247</i>&nbsp;                if (currentMembership == null || currentMembership.getGroupRole() == GroupRole.AWAITING_CHECK) {</b>
+<b class="fc"><i class="no-highlight">248</i>&nbsp;                    throw new AuthorizationErrorException(&quot;You are not member of group with id &quot; + group.getId());</b>
+<i class="no-highlight">249</i>&nbsp;                }
+<i class="no-highlight">250</i>&nbsp;            }
+<i class="no-highlight">251</i>&nbsp;        }
+<i class="no-highlight">252</i>&nbsp;
+<b class="fc"><i class="no-highlight">253</i>&nbsp;        Like foundLikeId = likeDao.getPostLikeByUserId(post.getId(), currentUser.getId());</b>
+<b class="fc"><i class="no-highlight">254</i>&nbsp;        if (foundLikeId != null) {</b>
+<b class="fc"><i class="no-highlight">255</i>&nbsp;            likeDao.deleteById(foundLikeId.getId());</b>
+<b class="fc"><i class="no-highlight">256</i>&nbsp;            return null;</b>
+<i class="no-highlight">257</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">258</i>&nbsp;        Like postLike = new Like(userDao.getById(currentUser.getId()), post);</b>
+<b class="fc"><i class="no-highlight">259</i>&nbsp;        likeDao.create(postLike);</b>
+<b class="fc"><i class="no-highlight">260</i>&nbsp;        return postLike;</b>
+<i class="no-highlight">261</i>&nbsp;    }
+<i class="no-highlight">262</i>&nbsp;
+<i class="no-highlight">263</i>&nbsp;    @Override
+<i class="no-highlight">264</i>&nbsp;    public Comment getCommentById(Long commentId) {
+<b class="nc"><i class="no-highlight">265</i>&nbsp;        return commentDao.getById(commentId);</b>
+<i class="no-highlight">266</i>&nbsp;    }
+<i class="no-highlight">267</i>&nbsp;
+<i class="no-highlight">268</i>&nbsp;    /**
+<i class="no-highlight">269</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">270</i>&nbsp;     * @param wallOwner   владелец стены, на которую добавляется пост
+<i class="no-highlight">271</i>&nbsp;     * @param text        текст поста
+<i class="no-highlight">272</i>&nbsp;     * @return созданный пост
+<i class="no-highlight">273</i>&nbsp;     * @throws AuthorizationErrorException нет доступа к стене выбранного пользователя
+<i class="no-highlight">274</i>&nbsp;     */
+<i class="no-highlight">275</i>&nbsp;    @Override
+<i class="no-highlight">276</i>&nbsp;    public Post addWallPost(User currentUser, User wallOwner, String text) {
+<b class="fc"><i class="no-highlight">277</i>&nbsp;        Wall wall = wallOwner.getWall();</b>
+<b class="fc"><i class="no-highlight">278</i>&nbsp;        Post post = null;</b>
+<b class="fc"><i class="no-highlight">279</i>&nbsp;        switch (wall.getPostPermission()) {</b>
+<i class="no-highlight">280</i>&nbsp;            case ALL: {
+<b class="nc"><i class="no-highlight">281</i>&nbsp;                post = defaultDao.create(new Post(text, currentUser, wall));</b>
+<b class="nc"><i class="no-highlight">282</i>&nbsp;                break;</b>
+<i class="no-highlight">283</i>&nbsp;            }
+<i class="no-highlight">284</i>&nbsp;            case FRIENDS: {
+<b class="nc"><i class="no-highlight">285</i>&nbsp;                if (friendRequestDao.isFriendOf(currentUser.getId(), wallOwner.getId()) || currentUser.getId().equals(wall.getId())) {</b>
+<b class="nc"><i class="no-highlight">286</i>&nbsp;                    post = defaultDao.create(new Post(text, currentUser, wall));</b>
+<b class="nc"><i class="no-highlight">287</i>&nbsp;                    break;</b>
+<i class="no-highlight">288</i>&nbsp;                } else {
+<b class="nc"><i class="no-highlight">289</i>&nbsp;                    throw new AuthorizationErrorException(&quot;Only friends of &quot; + wallOwner.getUsername() + &quot; can write posts on this wall!&quot;);</b>
+<i class="no-highlight">290</i>&nbsp;                }
+<i class="no-highlight">291</i>&nbsp;            }
+<i class="no-highlight">292</i>&nbsp;            case OWNER: {
+<b class="fc"><i class="no-highlight">293</i>&nbsp;                if (currentUser.getId().equals(wallOwner.getId())) {</b>
+<b class="fc"><i class="no-highlight">294</i>&nbsp;                    post = defaultDao.create(new Post(text, currentUser, wall));</b>
+<b class="fc"><i class="no-highlight">295</i>&nbsp;                    break;</b>
+<i class="no-highlight">296</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">297</i>&nbsp;                    throw new AuthorizationErrorException(&quot;Only owner can write posts on this wall!&quot;);</b>
+<i class="no-highlight">298</i>&nbsp;                }
+<i class="no-highlight">299</i>&nbsp;            }
+<i class="no-highlight">300</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">301</i>&nbsp;        return post;</b>
+<i class="no-highlight">302</i>&nbsp;    }
+<i class="no-highlight">303</i>&nbsp;
+<i class="no-highlight">304</i>&nbsp;    /**
+<i class="no-highlight">305</i>&nbsp;     * @param currentUser   текущий пользователь
+<i class="no-highlight">306</i>&nbsp;     * @param wallOwner     владелец стены
+<i class="no-highlight">307</i>&nbsp;     * @param requestedPost запрошенный для комментирования поста
+<i class="no-highlight">308</i>&nbsp;     * @param message       текст комментария
+<i class="no-highlight">309</i>&nbsp;     * @return созданный комментарий
+<i class="no-highlight">310</i>&nbsp;     * @throws AuthorizationErrorException нет доступа к стене выбранного пользователя
+<i class="no-highlight">311</i>&nbsp;     */
+<i class="no-highlight">312</i>&nbsp;    @Override
+<i class="no-highlight">313</i>&nbsp;    public Comment addWallPostComment(User currentUser, User wallOwner, Post requestedPost, String message) {
+<b class="fc"><i class="no-highlight">314</i>&nbsp;        Wall wall = wallOwner.getWall();</b>
+<b class="fc"><i class="no-highlight">315</i>&nbsp;        Comment comment = null;</b>
+<b class="fc"><i class="no-highlight">316</i>&nbsp;        switch (wall.getCommentPermission()) {</b>
+<i class="no-highlight">317</i>&nbsp;            case ALL: {
+<b class="fc"><i class="no-highlight">318</i>&nbsp;                comment = commentDao.create(new Comment(currentUser, message, requestedPost));</b>
+<b class="fc"><i class="no-highlight">319</i>&nbsp;                break;</b>
+<i class="no-highlight">320</i>&nbsp;            }
+<i class="no-highlight">321</i>&nbsp;            case FRIENDS: {
+<b class="nc"><i class="no-highlight">322</i>&nbsp;                if (friendRequestDao.isFriendOf(currentUser.getId(), wallOwner.getId()) || currentUser.getId().equals(wall.getId())) {</b>
+<b class="nc"><i class="no-highlight">323</i>&nbsp;                    comment = commentDao.create(new Comment(currentUser, message, requestedPost));</b>
+<b class="nc"><i class="no-highlight">324</i>&nbsp;                    break;</b>
+<i class="no-highlight">325</i>&nbsp;                } else {
+<b class="nc"><i class="no-highlight">326</i>&nbsp;                    throw new AuthorizationErrorException(&quot;Only friends of &quot; + wallOwner.getUsername() + &quot; can write comments on this wall!&quot;);</b>
+<i class="no-highlight">327</i>&nbsp;                }
+<i class="no-highlight">328</i>&nbsp;            }
+<i class="no-highlight">329</i>&nbsp;            case OWNER: {
+<b class="fc"><i class="no-highlight">330</i>&nbsp;                if (currentUser.getId().equals(wallOwner.getId())) {</b>
+<b class="nc"><i class="no-highlight">331</i>&nbsp;                    comment = commentDao.create(new Comment(currentUser, message, requestedPost));</b>
+<b class="nc"><i class="no-highlight">332</i>&nbsp;                    break;</b>
+<i class="no-highlight">333</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">334</i>&nbsp;                    throw new AuthorizationErrorException(&quot;Only owner can write comments on this wall!&quot;);</b>
+<i class="no-highlight">335</i>&nbsp;                }
+<i class="no-highlight">336</i>&nbsp;            }
+<i class="no-highlight">337</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">338</i>&nbsp;        return comment;</b>
+<i class="no-highlight">339</i>&nbsp;    }
+<i class="no-highlight">340</i>&nbsp;
+<i class="no-highlight">341</i>&nbsp;
+<i class="no-highlight">342</i>&nbsp;    /**
+<i class="no-highlight">343</i>&nbsp;     * @param userSender пользоватаель, желающий поставить комментарию лайк
+<i class="no-highlight">344</i>&nbsp;     * @param comment    выбранный комментарий
+<i class="no-highlight">345</i>&nbsp;     * @param wallOwner  владелец стены
+<i class="no-highlight">346</i>&nbsp;     * @return созданный лайк
+<i class="no-highlight">347</i>&nbsp;     * @throws LikeRevokedException        если лайк уже стоит, то при повторном выборе от отнимается
+<i class="no-highlight">348</i>&nbsp;     * @throws AuthorizationErrorException нет доступа выбранной стене
+<i class="no-highlight">349</i>&nbsp;     */
+<i class="no-highlight">350</i>&nbsp;    @Override
+<i class="no-highlight">351</i>&nbsp;    public Like addWallCommentLike(User userSender, Comment comment, User wallOwner) {
+<b class="fc"><i class="no-highlight">352</i>&nbsp;        if (!wallOwner.isOpenUser() &amp;&amp; !friendRequestDao.isFriendOf(userSender.getId(), wallOwner.getId()) &amp;&amp; !userSender.getId().equals(wallOwner.getId())) {</b>
+<b class="fc"><i class="no-highlight">353</i>&nbsp;            throw new AuthorizationErrorException(&quot;You are not friend of  &quot; + wallOwner.getUsername() + &quot; and don&#39;t have access to his wall!&quot;);</b>
+<i class="no-highlight">354</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">355</i>&nbsp;        Like foundLikeId = likeDao.getCommentLikeByUserId(comment.getId(), userSender.getId());</b>
+<b class="fc"><i class="no-highlight">356</i>&nbsp;        if (foundLikeId != null) {</b>
+<b class="fc"><i class="no-highlight">357</i>&nbsp;            likeDao.deleteById(foundLikeId.getId());</b>
+<b class="fc"><i class="no-highlight">358</i>&nbsp;            return null;</b>
+<i class="no-highlight">359</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">360</i>&nbsp;        Like commentLike = new Like(userDao.getById(userSender.getId()), comment);</b>
+<b class="fc"><i class="no-highlight">361</i>&nbsp;        likeDao.create(commentLike);</b>
+<b class="fc"><i class="no-highlight">362</i>&nbsp;        return commentLike;</b>
+<i class="no-highlight">363</i>&nbsp;    }
+<i class="no-highlight">364</i>&nbsp;
+<i class="no-highlight">365</i>&nbsp;    /**
+<i class="no-highlight">366</i>&nbsp;     * @param currentUser текущий пользователь
+<i class="no-highlight">367</i>&nbsp;     * @param wallOwner   владелец стены
+<i class="no-highlight">368</i>&nbsp;     * @param postId      id выбранного поста
+<i class="no-highlight">369</i>&nbsp;     * @return статус действия
+<i class="no-highlight">370</i>&nbsp;     * @throws AuthorizationErrorException нет доступа выбранной стене
+<i class="no-highlight">371</i>&nbsp;     */
+<i class="no-highlight">372</i>&nbsp;    @Override
+<i class="no-highlight">373</i>&nbsp;    public String deleteUserWallPost(User currentUser, User wallOwner, Long postId) {
+<b class="fc"><i class="no-highlight">374</i>&nbsp;        Post post = defaultDao.getById(postId);</b>
+<b class="fc"><i class="no-highlight">375</i>&nbsp;        if (currentUser.getRole().getName().equals(RoleType.ADMIN)) {</b>
+<b class="fc"><i class="no-highlight">376</i>&nbsp;            log.info(&quot;Admin action: Post with id &quot; + postId + &quot; deleted successfully&quot;);</b>
+<b class="fc"><i class="no-highlight">377</i>&nbsp;            defaultDao.deleteById(postId);</b>
+<b class="fc"><i class="no-highlight">378</i>&nbsp;            return &quot;Admin action: Post with id &quot; + postId + &quot; deleted successfully&quot;;</b>
+<i class="no-highlight">379</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">380</i>&nbsp;        if (post.getAuthor().getId().equals(currentUser.getId()) || currentUser.getId().equals(wallOwner.getId())) {</b>
+<b class="fc"><i class="no-highlight">381</i>&nbsp;            defaultDao.deleteById(postId);</b>
+<b class="fc"><i class="no-highlight">382</i>&nbsp;            return &quot;Post deleted successfully&quot;;</b>
+<i class="no-highlight">383</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">384</i>&nbsp;            throw new AuthorizationErrorException(&quot;Only owner of the wall, author or global admins can delete this post it!&quot;);</b>
+<i class="no-highlight">385</i>&nbsp;        }
+<i class="no-highlight">386</i>&nbsp;    }
+<i class="no-highlight">387</i>&nbsp;
+<i class="no-highlight">388</i>&nbsp;    @Override
+<i class="no-highlight">389</i>&nbsp;    public void deleteCommentById(Long commentId) {
+<b class="nc"><i class="no-highlight">390</i>&nbsp;        commentDao.deleteById(commentId);</b>
+<b class="nc"><i class="no-highlight">391</i>&nbsp;    }</b>
+<i class="no-highlight">392</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-09-15 20:28</div>
+</div>
+</body>
+</html>

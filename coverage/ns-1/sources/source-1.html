@@ -1,0 +1,150 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > AbstractServiceImpl</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+    @import "../../.css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../.js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.shevtsov.sunshine.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: AbstractServiceImpl (com.shevtsov.sunshine.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AbstractServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    16,7%
+  </span>
+  <span class="absValue">
+    (1/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    30%
+  </span>
+  <span class="absValue">
+    (3/10)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.shevtsov.sunshine.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.shevtsov.sunshine.dao.AbstractDao;
+<i class="no-highlight">4</i>&nbsp;import com.shevtsov.sunshine.dao.entities.AbstractEntity;
+<i class="no-highlight">5</i>&nbsp;import com.shevtsov.sunshine.service.AbstractService;
+<i class="no-highlight">6</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">7</i>&nbsp;import org.springframework.transaction.annotation.Transactional;
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import java.sql.SQLException;
+<i class="no-highlight">10</i>&nbsp;import java.util.List;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;@Transactional(rollbackFor = {SQLException.class})
+<i class="no-highlight">13</i>&nbsp;public class AbstractServiceImpl&lt;T extends AbstractEntity, D extends AbstractDao&lt;T&gt;&gt; implements AbstractService&lt;T&gt; {
+<i class="no-highlight">14</i>&nbsp;    @Autowired
+<i class="no-highlight">15</i>&nbsp;    protected D defaultDao;
+<i class="no-highlight">16</i>&nbsp;
+<b class="fc"><i class="no-highlight">17</i>&nbsp;    public AbstractServiceImpl(D defaultDao) {</b>
+<b class="fc"><i class="no-highlight">18</i>&nbsp;        this.defaultDao = defaultDao;</b>
+<b class="fc"><i class="no-highlight">19</i>&nbsp;    }</b>
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;    @Override
+<i class="no-highlight">22</i>&nbsp;    public T getById(Long id) {
+<b class="nc"><i class="no-highlight">23</i>&nbsp;        return defaultDao.getById(id);</b>
+<i class="no-highlight">24</i>&nbsp;    }
+<i class="no-highlight">25</i>&nbsp;
+<i class="no-highlight">26</i>&nbsp;    @Override
+<i class="no-highlight">27</i>&nbsp;    public List&lt;T&gt; getAll() {
+<b class="nc"><i class="no-highlight">28</i>&nbsp;        return defaultDao.getAll();</b>
+<i class="no-highlight">29</i>&nbsp;    }
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;    @Override
+<i class="no-highlight">32</i>&nbsp;    public void deleteById(Long id) {
+<b class="nc"><i class="no-highlight">33</i>&nbsp;        defaultDao.deleteById(id);</b>
+<b class="nc"><i class="no-highlight">34</i>&nbsp;    }</b>
+<i class="no-highlight">35</i>&nbsp;
+<i class="no-highlight">36</i>&nbsp;    @Override
+<i class="no-highlight">37</i>&nbsp;    public void update(T entity) {
+<b class="nc"><i class="no-highlight">38</i>&nbsp;        defaultDao.update(entity);</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;    }</b>
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;    @Override
+<i class="no-highlight">42</i>&nbsp;    public T create(T entity) {
+<b class="nc"><i class="no-highlight">43</i>&nbsp;        return defaultDao.create(entity);</b>
+<i class="no-highlight">44</i>&nbsp;    }
+<i class="no-highlight">45</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-09-15 20:28</div>
+</div>
+</body>
+</html>

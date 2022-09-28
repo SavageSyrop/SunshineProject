@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1>Hi, <span style="color: #f5821f">${username}</span></h1>
+        <img src="http://sunshinebottling.com/wp-content/uploads/2019/05/SunshineBottlingcompany-1.png" width="auto" height="400px" alt = "Изображение теряется...">
+        <h3>
+            You have requested account activation!
+        </h3>
+        <h2>
+            It's almost done! Here is your activation code - <span style="color: #00a3b4">${activationCode}</span>
+        </h2>
+        <h2>
+            To activate you account please follow: <a>http://localhost:8080/activate/${activationCode}</a>
+        </h2>
+        <h3>
+            If you didn't send a request, be alert that someone tries to activate your account!
+        </h3>
+    </body>
+</html>
