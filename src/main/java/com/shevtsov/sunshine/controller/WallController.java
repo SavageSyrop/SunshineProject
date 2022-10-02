@@ -73,7 +73,7 @@ public class WallController {
      * @return информация о созданном посте
      */
 
-    @PutMapping("/wall")
+    @PostMapping("/wall")
     @PreAuthorize("hasAuthority('WRITING')")
     public WallPostDto addPostToOwnWall(@RequestBody String text) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -87,7 +87,7 @@ public class WallController {
      * @return статус действия
      */
 
-    @PostMapping("/wall/settings")
+    @PutMapping("/wall/settings")
     @PreAuthorize("hasAuthority('WRITING')")
     public ResponseMessage changeWallSettings(@RequestParam(required = false) UserWallPermissionType postPermission, @RequestParam(required = false) UserWallPermissionType commentPermission) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -116,7 +116,7 @@ public class WallController {
      * @return информация о созданном посте
      */
 
-    @PutMapping("/id{id}/wall")
+    @PostMapping("/id{id}/wall")
     @PreAuthorize("hasAuthority('WRITING')")
     public WallPostDto addPostToUserWall(@PathVariable Long id, @RequestBody String text) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -180,7 +180,7 @@ public class WallController {
      * @return информация о поставленном лайке
      */
 
-    @PutMapping("/id{id}/wall/post{postId}/likes")
+    @PostMapping("/id{id}/wall/post{postId}/likes")
     @PreAuthorize("hasAuthority('WRITING')")
     public LikeDto likePost(@PathVariable Long id, @PathVariable Long postId) {
         Post requestedPost = postService.getById(postId);
@@ -221,7 +221,7 @@ public class WallController {
      * @return информация о созданном посте
      */
 
-    @PutMapping("/id{id}/wall/post{postId}/comments")
+    @PostMapping("/id{id}/wall/post{postId}/comments")
     @PreAuthorize("hasAuthority('WRITING')")
     public CommentDto commentPost(@PathVariable Long id, @PathVariable Long postId, @RequestBody String message) {
         Post requestedPost = postService.getById(postId);
@@ -287,7 +287,7 @@ public class WallController {
      * @return информация об установленном лайке
      */
 
-    @PutMapping("/id{id}/wall/post{postId}/comment{commentId}/likes")
+    @PostMapping("/id{id}/wall/post{postId}/comment{commentId}/likes")
     @PreAuthorize("hasAuthority('WRITING')")
     public LikeDto likeCommentAtPost(@PathVariable Long id, @PathVariable Long postId, @PathVariable Long commentId) {
         Comment requestedComment = postService.getCommentById(commentId);

@@ -11,7 +11,6 @@ import com.shevtsov.sunshine.dao.entities.UserSearchInfo;
 import com.shevtsov.sunshine.dto.AbstractUserDto;
 import com.shevtsov.sunshine.dto.UserInfoFullDto;
 import com.shevtsov.sunshine.dto.UserInfoSearchDto;
-import com.shevtsov.sunshine.dto.UserInfoSecuredDto;
 import com.shevtsov.sunshine.dto.UserInfoShortDto;
 import com.shevtsov.sunshine.dto.UserPublicDto;
 import com.shevtsov.sunshine.dto.mappers.GroupMembershipMapper;
@@ -25,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,7 +68,7 @@ public class UserController {
      * @return информация о созданном пользователе
      */
 
-    @PutMapping("/sign_up")
+    @PostMapping("/sign_up")
     public UserPublicDto signUp(@RequestBody UserInfoFullDto userInfoDto, @RequestParam Long roleId) {
         if (userService.getUserByUsername(userInfoDto.getUsername()) != null) {
             throw new AlreadyExistsException("User " + userInfoDto.getUsername() + " already exists!");
@@ -95,7 +95,7 @@ public class UserController {
      * @return статус действия
      */
 
-    @PostMapping("/reset_password/{restoreCode}")
+    @PatchMapping("/reset_password/{restoreCode}")
     public ResponseMessage restore(@PathVariable String restoreCode, @RequestParam String newPassword) {
         userService.restorePassword(restoreCode, newPassword);
         return new ResponseMessage("You password has been reset successfully!");
@@ -106,7 +106,7 @@ public class UserController {
      * @return статус действия
      */
 
-    @PostMapping("/activate/{activationCode}")
+    @PatchMapping("/activate/{activationCode}")
     public ResponseMessage activate(@PathVariable String activationCode) {
         userService.activateAccount(activationCode);
         return new ResponseMessage("Your account has been successfully activated");
@@ -118,7 +118,7 @@ public class UserController {
      * @return обновленные данные и новый токен
      */
 
-    @PostMapping("/edit")
+    @PutMapping("/edit")
     @PreAuthorize("hasAuthority('WRITING')")
     public ResponseMessage edit(@RequestBody UserInfoFullDto userInfoDto, @RequestParam String currentPassword) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -177,7 +177,7 @@ public class UserController {
      * @return статус действия
      */
 
-    @PostMapping("/ban")
+    @PatchMapping("/ban")
     @PreAuthorize("hasAuthority('ADMIN_ACTIONS')")
     public ResponseMessage banUser(@RequestParam Long userId) {
         User user = userService.getById(userId);
@@ -190,7 +190,7 @@ public class UserController {
      * @return статус действия
      */
 
-    @PostMapping("/unban")
+    @PatchMapping("/unban")
     @PreAuthorize("hasAuthority('ADMIN_ACTIONS')")
     public ResponseMessage unbanUser(@RequestParam Long userId) {
         User user = userService.getById(userId);

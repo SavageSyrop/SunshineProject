@@ -13,8 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -93,7 +94,7 @@ public class FriendController {
      * @return информация о созданном запросе дружбы
      */
 
-    @PutMapping("/friend")
+    @PostMapping("/friend")
     @PreAuthorize("hasAuthority('WRITING')")
     public FriendRequestDto addFriend(@RequestParam Long userId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -107,7 +108,7 @@ public class FriendController {
      * @return информация об обновленном запросе дружбы
      */
 
-    @PutMapping("/friend_requests/accept")
+    @PatchMapping("/friend_requests/accept")
     @PreAuthorize("hasAuthority('WRITING')")
     public FriendRequestDto acceptFriendRequest(@RequestParam Long requestId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());

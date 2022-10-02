@@ -22,9 +22,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -101,7 +101,7 @@ public class ChatController {
      * @throws WeakDataException если оба параметра (chatId и recipientId) заданы или не заданы одновременно
      */
 
-    @PutMapping("/chat")
+    @PostMapping("/chat")
     @PreAuthorize("hasAuthority('WRITING')")
     public MessageDto writeInChat(@RequestParam(required = false) Long chatId, @RequestBody String mes, @RequestParam(required = false) Long recipientId) {
         if ((chatId == null && recipientId == null) || (chatId != null && recipientId != null)) {
@@ -135,7 +135,7 @@ public class ChatController {
      * @return информация об участниках группового чата
      */
 
-    @PutMapping("/public_chat")
+    @PostMapping("/public_chat")
     @PreAuthorize("hasAuthority('WRITING')")
     public List<ChatParticipationDto> createPublicChat(@RequestParam Long userToAddId, @RequestParam String chatName) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -150,7 +150,7 @@ public class ChatController {
      * @return информация о добавленном участнике группового чата
      */
 
-    @PutMapping("/public_chat/add_user")
+    @PostMapping("/public_chat/add_user")
     @PreAuthorize("hasAuthority('WRITING')")
     public ChatParticipationDto addChatParticipantToChat(@RequestParam Long chatId, @RequestParam Long userToAddId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -164,7 +164,7 @@ public class ChatController {
      * @return полная информация о чате, включая сообщения в нём
      */
 
-    @PostMapping("/chat{chatId}")
+    @PatchMapping("/chat{chatId}")
     @PreAuthorize("hasAuthority('WRITING')")
     public ChatDto renameChat(@PathVariable Long chatId, @RequestParam String chatName) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -207,7 +207,7 @@ public class ChatController {
      * @return статус действия
      */
 
-    @PostMapping("/public_chat{chatId}/owner")
+    @PatchMapping("/public_chat{chatId}/owner")
     @PreAuthorize("hasAuthority('WRITING')")
     public ResponseMessage setChatOwner(@PathVariable Long chatId, @RequestParam Long newOwnerId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -223,7 +223,7 @@ public class ChatController {
      * @return информация созданного запроса в поддержку
      */
 
-    @PutMapping("/support")
+    @PostMapping("/support")
     @PreAuthorize("hasAuthority('WRITING')")
     public MessageDto writeToSupport(@RequestBody String userRequest) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());

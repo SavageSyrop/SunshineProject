@@ -33,9 +33,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -102,7 +102,7 @@ public class GroupController {
      * @return информация о группе
      */
 
-    @PutMapping("/group")
+    @PostMapping("/group")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupDto createGroup(@RequestBody GroupDto groupDto) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -116,7 +116,7 @@ public class GroupController {
      * @return обновленная информация о группе
      */
 
-    @PostMapping("/group{groupId}")
+    @PatchMapping("/group{groupId}")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupDto editGroup(@RequestBody GroupDto groupDto, @PathVariable Long groupId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -131,7 +131,7 @@ public class GroupController {
      * @return информация о созданном членстве в групппе
      */
 
-    @PutMapping("/group{groupId}/subscribe")
+    @PostMapping("/group{groupId}/subscribe")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupMembershipDto subscribeToGroup(@PathVariable Long groupId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -163,7 +163,7 @@ public class GroupController {
      * @throws EntityNotFoundException     пользователь, которому выдается роль, не подписчик группы
      */
 
-    @PostMapping("/group{groupId}/grant_role")
+    @PatchMapping("/group{groupId}/grant_role")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupMembershipDto grantRoleTo(@PathVariable Long groupId, @RequestParam Long subscriberId, @RequestParam GroupRole groupRole) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -241,7 +241,7 @@ public class GroupController {
      * @throws ActionAlreadyCompletedException если id уже принятого запроса
      */
 
-    @PostMapping("/group{groupId}/sub_requests/accept")
+    @PatchMapping("/group{groupId}/sub_requests/accept")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupMembershipDto acceptSubRequest(@PathVariable Long groupId, @RequestParam Long subRequestId) {
         if (currentUserHasAdminRightsInGroup(groupId)) {
@@ -327,7 +327,7 @@ public class GroupController {
      * @return информация о созданном посте
      */
 
-    @PutMapping("/group{groupId}/wall/post")
+    @PostMapping("/group{groupId}/wall/post")
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupPostDto addPost(@PathVariable Long groupId, @RequestBody String text) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -418,7 +418,7 @@ public class GroupController {
      * @throws AuthorizationErrorException текущий пользователь не имеет доступа к предложке
      */
 
-    @PostMapping("/group{groupId}/wall/offered_posts/accept")
+    @PatchMapping("/group{groupId}/wall/offered_posts/accept")
     // Объединить в один метод с declinePost невозможно, разные типы возвратов (вернуть null неиформативно)
     @PreAuthorize("hasAuthority('WRITING')")
     public GroupPostDto acceptOfferedPost(@PathVariable Long groupId, @RequestParam Long postId) {
@@ -481,7 +481,7 @@ public class GroupController {
      */
 
 
-    @PutMapping("/group{groupId}/wall/post{postId}/likes")
+    @PostMapping("/group{groupId}/wall/post{postId}/likes")
     @PreAuthorize("hasAuthority('WRITING')")
     public LikeDto likePost(@PathVariable Long groupId, @PathVariable Long postId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -527,7 +527,7 @@ public class GroupController {
      * @throws InvalidActionException попытка прокомментировать пост из предложки
      */
 
-    @PutMapping("/group{groupId}/wall/post{postId}/comments")
+    @PostMapping("/group{groupId}/wall/post{postId}/comments")
     @PreAuthorize("hasAuthority('WRITING')")
     public CommentDto commentPost(@PathVariable Long groupId, @PathVariable Long postId, @RequestBody String message) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
@@ -600,7 +600,7 @@ public class GroupController {
      */
 
 
-    @PutMapping("/group{groupId}/wall/post{postId}/comment{commentId}/likes")
+    @PostMapping("/group{groupId}/wall/post{postId}/comment{commentId}/likes")
     @PreAuthorize("hasAuthority('WRITING')")
     public LikeDto likeCommentAtPost(@PathVariable Long groupId, @PathVariable Long postId, @PathVariable Long commentId) {
         User currentUser = userService.getUserByUsername(getAuthenticationName());
