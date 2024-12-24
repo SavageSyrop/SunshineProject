@@ -29,4 +29,4 @@ jobs:
         run: mvn test  # Запуск юнит-тестов
 
       - name: deploy
-        run: docker-compose up -d
+        run: docker compose up -d
