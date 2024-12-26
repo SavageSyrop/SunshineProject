@@ -1,0 +1,29 @@
+version: '3.1'
+
+volumes:
+  db-data:
+    driver: local
+
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: postgres
+      MYSQL_DATABASE: sunshineDB
+      MYSQL_USER: desertfox
+      MYSQL_PASSWORD: postgres
+    volumes:
+      - ./dbdata:/var/lib/mysql/
+
+  app:
+    container_name: sunshine
+    image: sunshine
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
